@@ -182,6 +182,7 @@ services:
       context: ../../py
       args:
         GIT_COMMIT: ${GIT_COMMIT:-selfhost}
+        WITH_AI_CLIS: ${WITH_AI_CLIS:-true}
     image: ${PY_IMAGE:-braidscope/py:local}
     restart: unless-stopped
     depends_on:
