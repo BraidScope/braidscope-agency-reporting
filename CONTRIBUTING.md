@@ -45,10 +45,9 @@ There is no contributor licence agreement.
 
 ## Connectors
 
-Connectors for Meta Ads and Google Ads live here. Connectors for GA4, Shopify, HubSpot and Klaviyo
-are part of Braidscope Cloud and are not accepted into this repository. Other platforms are welcome:
-open a connector request issue first so we agree on the shape, then one connector per PR with fixtures
-only, no live API calls in tests. We keep at most three connector PRs in review at a time.
+Google Ads, Meta Ads, GA4, HubSpot, Klaviyo and Shopify connectors live in `py/app`. New platforms are
+welcome: open a connector request issue first so we agree on the shape, then one connector per PR with
+fixtures only, no live API calls in tests. We keep at most three connector PRs in review at a time.
 
 ## Where to ask
 

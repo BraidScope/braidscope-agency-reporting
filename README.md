@@ -3,15 +3,14 @@
 **Open-source client reporting for marketing agencies.** Every client's ad and analytics numbers in one
 place, with your agency's branding. Self-host it in one command, or use our cloud.
 
-> **Status: preparing for public release.** This repository is private while the open-core split
-> finishes. Nothing here is a public promise yet.
+> **Status: preparing for public release.**
 
 ![Braidscope](web/public/og-image.png)
 
 ## Who this is for
 
 - Marketing agencies with 8 to 30 active clients.
-- Teams that run Meta Ads or Google Ads for clients and spend Monday mornings on reports.
+- Teams that run Meta Ads, Google Ads, GA4, HubSpot, Klaviyo or Shopify for clients and spend Monday mornings on reports.
 - Anyone who wants client reporting on their own server, with their own data.
 
 ## What works today
@@ -19,9 +18,10 @@ place, with your agency's branding. Self-host it in one command, or use our clou
 | Area | Status |
 |---|---|
 | One workspace per client, team invites, roles (owner, admin, editor, viewer) | Live |
-| Google Ads and Meta Ads dashboards | Live |
+| Google Ads, Meta Ads, GA4, HubSpot and Klaviyo dashboards | Live |
+| Shopify | Sync only, no dashboard tab yet |
 | Date ranges, world map, per-source dashboards | Live |
-| Ask AI over connected data, with your own API key | Live |
+| Ask AI over connected data: your own API key, OpenRouter, or sign in with Claude or ChatGPT | Live |
 | Reports: library, drafts, AI narrative, PDF download | Live |
 | Per-client and agency branding | Live |
 | Two-factor sign-in, notifications | Live |
@@ -48,11 +48,10 @@ Everything else, including upgrade, backup and moving from the cloud, is in [doc
 
 | Self-host (this repo, free) | Braidscope Cloud |
 |---|---|
-| Meta Ads and Google Ads connectors | GA4, Shopify, HubSpot, Klaviyo and every future first-party connector |
-| Dashboards, reports, PDF download | Many client workspaces, admin control center |
-| Ask AI with your own key | White-label domains, scheduled delivery, report send |
-| Team and roles inside one agency | Hosting, upkeep when platforms change their APIs |
-| You run it | We run it: [braidscope.com](https://braidscope.com) |
+| Every connector: Google Ads, Meta Ads, GA4, HubSpot, Klaviyo, Shopify | The same, hosted and kept working when platforms change their APIs |
+| Dashboards, reports, PDF download, Ask AI | Backups, upgrades and monitoring done for you |
+| Team and roles, client workspaces | White-label domains, priority support |
+| You run it on your server | We run it: [braidscope.com](https://braidscope.com) |
 
 White-label and larger plans: contact us through the site.
 

@@ -146,6 +146,5 @@ Full local stack: `cp .env.example .env`, fill values, `docker compose up --buil
 
 ## Planned, not built
 
-Open-core split (public core with Meta Ads + Google Ads, private cloud with the rest), move off Supabase to
-plain Postgres with built-in login, connector SDK. Tracked as BS tickets. Nothing in this repo claims any
+Move off Supabase to plain Postgres with built-in login, connector SDK. Tracked as BS tickets. Nothing in this repo claims any
 of it exists.
