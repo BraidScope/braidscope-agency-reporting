@@ -1,0 +1,571 @@
+/* ========================================================
+   DASHBOARDS — source navigation + shared dashboard design system
+
+   Loaded by pages/Dashboards.jsx after App.css. Everything below is scoped:
+   - .dash-sourcebar / .dash-source-*   → the shared source row at the top of
+     every dashboard (replaces the old page head + cross-platform banner).
+   - .dashboard-page .bs-dash …         → every provider dashboard (GA4,
+     Google Ads, Meta Ads, Klaviyo, HubSpot, Shopify). GA4 was the reference;
+     its rules were generalised so all six share one toolbar, KPI strip,
+     panel, table, pagination and state treatment.
+   - .bs-select-content                 → Select popups (portalled, so they
+     sit outside .bs-dash and are scoped by their own class).
+
+   App.css carries several stacked "fix" layers with !important (panel
+   padding, table fonts, a dark-mode KPI colour of var(--line)), so a few
+   rules here need !important plus the extra .dashboard-page scope to win.
+======================================================== */
+
+/* ── Shared source navigation ─────────────────────────────────────────── */
+
+.dashboard-page .dashboard-tabs-wrap{gap:0}
+.dashboard-page .dashboard-tab-content{margin-top:16px !important}
+
+.dash-sourcebar{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  min-width:0;
+}
+.dash-source-list{
+  display:flex !important; align-items:center !important; justify-content:flex-start !important;
+  gap:2px; flex:0 1 auto; min-width:0; max-width:100%;
+  width:auto !important; height:auto !important;
+  padding:4px !important; border-radius:12px !important;
+  background:var(--paper) !important; border:1px solid var(--line);
+  box-shadow:var(--shadow-sm);
+  overflow-x:auto; overscroll-behavior-x:contain;
+  scrollbar-width:none;
+}
+.dash-source-list::-webkit-scrollbar{display:none}
+
+.dash-source-tab{
+  flex:0 0 auto !important; height:34px !important; width:auto !important;
+  gap:8px !important; padding:0 12px 0 7px !important;
+  border-radius:8px !important; border:1px solid transparent !important;
+  background:transparent !important; box-shadow:none !important;
+  color:var(--ink-2) !important; font-size:13px !important; font-weight:550 !important;
+  letter-spacing:-.005em; line-height:1 !important;
+  cursor:pointer;
+  transition:background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.dash-source-tab::after{display:none !important}
+.dash-source-tab:hover:not(:disabled):not([data-state="active"]){
+  background:var(--wash) !important; color:var(--ink) !important;
+}
+.dash-source-tab:focus-visible{
+  outline:2px solid color-mix(in srgb, var(--ink) 55%, transparent) !important;
+  outline-offset:1px; box-shadow:none !important;
+}
+.dash-source-tab[data-state="active"]{
+  background:var(--wash) !important; color:var(--ink) !important;
+  border-color:var(--line-strong) !important; font-weight:650 !important;
+  box-shadow:0 1px 2px rgba(0,0,0,.06) !important;
+}
+.dash-source-tab:disabled{
+  color:var(--faint) !important; opacity:1 !important;
+  cursor:not-allowed; pointer-events:auto !important;
+}
+.dash-source-tab[data-connected="false"] .dash-source-logo{
+  filter:grayscale(1); opacity:.45;
+}
+.dash-source-tab[data-connected="false"][data-state="active"]{color:var(--ink-2) !important}
+.dash-source-tab > i{font-size:15px; color:var(--muted)}
+
+.dash-source-logo.conn-logo{
+  width:22px; height:22px; border-radius:6px;
+  background:var(--raised); border:1px solid var(--line); box-shadow:none;
+}
+.dash-source-logo .conn-logo-mark{width:64%; height:64%}
+.dash-source-logo .conn-logo-img{width:70%; height:70%; border-radius:3px}
+.dash-source-logo .conn-logo-fallback{font-size:11px}
+
+.dash-source-divider{
+  flex:0 0 1px; align-self:center; width:1px; height:18px;
+  margin:0 6px; background:var(--line);
+}
+
+.dash-sourcebar-actions{display:flex; align-items:center; gap:8px; flex-shrink:0}
+.dashboard-page .dash-bar-btn{
+  display:inline-flex !important; align-items:center !important; gap:7px !important;
+  height:36px !important; padding:0 13px !important; border-radius:10px !important;
+  font-size:13px !important; font-weight:600 !important; white-space:nowrap;
+  background:var(--paper) !important; color:var(--ink) !important;
+  border:1px solid var(--line) !important; box-shadow:var(--shadow-sm) !important;
+  transition:background-color .15s ease, border-color .15s ease !important;
+}
+.dashboard-page .dash-bar-btn:hover{background:var(--wash) !important; border-color:var(--line-strong) !important}
+.dashboard-page .dash-bar-btn--primary{
+  background:var(--ink) !important; color:var(--paper) !important; border-color:var(--ink) !important;
+}
+.dashboard-page .dash-bar-btn--primary:hover{
+  background:color-mix(in srgb, var(--ink) 88%, var(--paper)) !important;
+  border-color:color-mix(in srgb, var(--ink) 88%, var(--paper)) !important;
+}
+.dashboard-page .dash-bar-btn i{font-size:15px}
+
+@media (max-width:1024px){
+  .dash-sourcebar{flex-wrap:wrap}
+  .dash-source-list{flex:1 1 100%}
+  .dash-sourcebar-actions{flex:1 1 100%; justify-content:flex-end}
+}
+@media (max-width:600px){
+  .dash-sourcebar{gap:10px}
+  .dash-sourcebar-actions > .dash-bar-btn{flex:1 1 0; justify-content:center !important}
+}
+
+/* ── GA4 dashboard ─────────────────────────────────────────────────────── */
+
+/* App.css gives .analytics-dashboard a 20px/24px inset + 100vh min-height,
+   which pushed GA4 out of line with the source bar above it. */
+.dashboard-page .bs-dash{gap:16px !important; padding:0 0 32px; min-height:0}
+
+/* Toolbar: status + property context on the left, controls on the right. */
+.bs-toolbar{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  flex-wrap:wrap; min-width:0;
+}
+.bs-toolbar-context{display:flex; align-items:center; gap:10px; min-width:0; flex:1 1 auto}
+.bs-toolbar-context-text{
+  font-size:12.5px; color:var(--muted); font-weight:500;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;
+}
+.dashboard-page .bs-dash .dash-status{
+  height:24px !important; padding:0 9px !important; font-size:11.5px !important;
+  font-weight:600 !important; flex-shrink:0; backdrop-filter:none;
+}
+.dashboard-page .bs-dash .dash-status span{width:6px; height:6px}
+.bs-toolbar-controls{display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+
+/* One control language for date range, property select, charts, refresh. */
+.dashboard-page .bs-dash .date-range-trigger,
+.dashboard-page .bs-dash .analytics-select,
+.dashboard-page .bs-dash .bs-refresh-btn,
+.dashboard-page .bs-dash .device-select{
+  height:34px !important; min-height:34px; padding:0 11px !important; gap:6px !important;
+  border-radius:9px !important; border:1px solid var(--line) !important;
+  background:var(--paper) !important; color:var(--ink) !important;
+  font-size:13px !important; font-weight:550 !important; line-height:1 !important;
+  box-shadow:var(--shadow-sm) !important; backdrop-filter:none !important;
+  transform:none !important;
+  transition:background-color .15s ease, border-color .15s ease, color .15s ease !important;
+}
+.dashboard-page .bs-dash .date-range-trigger:hover,
+.dashboard-page .bs-dash .analytics-select:hover,
+.dashboard-page .bs-dash .bs-refresh-btn:hover:not(:disabled),
+.dashboard-page .bs-dash .device-select:hover{
+  background:var(--wash) !important; border-color:var(--line-strong) !important;
+}
+.dashboard-page .bs-dash .date-range-trigger:focus-visible,
+.dashboard-page .bs-dash .analytics-select:focus-visible,
+.dashboard-page .bs-dash .bs-refresh-btn:focus-visible,
+.dashboard-page .bs-dash .device-select:focus-visible{
+  outline:none; border-color:var(--line-strong) !important;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--ink) 12%, transparent) !important;
+}
+.dashboard-page .bs-dash .analytics-select[data-state="open"],
+.dashboard-page .bs-dash .device-select[data-state="open"]{border-color:var(--line-strong) !important; background:var(--wash) !important}
+.dashboard-page .bs-dash .analytics-select.wide{width:220px !important; min-width:0 !important; justify-content:space-between}
+.dashboard-page .bs-dash .analytics-select svg,
+.dashboard-page .bs-dash .device-select svg{color:var(--muted) !important; opacity:1}
+.dashboard-page .bs-dash .date-range-trigger i{margin:0 !important; font-size:14px; color:var(--muted)}
+.dashboard-page .bs-dash .bs-refresh-btn:disabled{opacity:.55}
+.dashboard-page .bs-dash .bs-refresh-btn i{font-size:14px; color:var(--muted)}
+.dashboard-page .bs-dash .chart-filter-badge{
+  margin-left:2px; padding:2px 6px; border-radius:6px; font-size:10.5px; font-weight:650;
+  background:var(--wash); color:var(--ink-2); font-variant-numeric:tabular-nums;
+}
+
+/* Date range + chart filter popovers: themed instead of hard-coded white. */
+.dashboard-page .bs-dash .date-range-dropdown,
+.dashboard-page .bs-dash .chart-filter-dropdown{
+  background:var(--raised); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow-lg), 0 2px 8px rgba(0,0,0,.08);
+  max-width:calc(100vw - 24px);
+  animation:ga4PopIn .14s ease-out;
+}
+.dashboard-page .bs-dash .date-range-section-label,
+.dashboard-page .bs-dash .date-range-field label,
+.dashboard-page .bs-dash .chart-filter-header{color:var(--muted); font-weight:600; letter-spacing:.06em}
+.dashboard-page .bs-dash .date-range-divider{background:var(--line)}
+.dashboard-page .bs-dash .date-range-preset-item{color:var(--ink-2); font-size:12.5px; transition:background-color .12s ease, color .12s ease}
+.dashboard-page .bs-dash .date-range-preset-item:hover{background:var(--wash); color:var(--ink)}
+.dashboard-page .bs-dash .date-range-preset-item.active{background:var(--ink); color:var(--paper); font-weight:600}
+.dashboard-page .bs-dash .analytics-date-input{
+  width:100%; height:34px; background:var(--wash); border-color:var(--line); color:var(--ink); border-radius:8px;
+}
+.dashboard-page .bs-dash .analytics-date-input:focus{border-color:var(--line-strong); box-shadow:0 0 0 3px color-mix(in srgb, var(--ink) 10%, transparent)}
+.dashboard-page .bs-dash .date-range-hint{margin-top:8px; font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums}
+.dashboard-page .bs-dash .date-range-hint.is-error{color:var(--bad)}
+.dashboard-page .bs-dash .date-range-apply:disabled{opacity:.4}
+.dashboard-page .bs-dash .date-range-apply{
+  background:var(--ink); color:var(--paper); border-radius:8px; height:34px; padding:0; font-weight:600;
+}
+
+/* Section visibility checklist. */
+.dashboard-page .bs-dash .chart-filter-dropdown{padding:6px; min-width:210px}
+.dashboard-page .bs-dash .chart-filter-header{padding:6px 8px 8px; font-size:10.5px}
+.dashboard-page .bs-dash .chart-filter-reset{color:var(--ink); font-weight:600; letter-spacing:0; text-transform:none; padding:2px 4px; border-radius:6px}
+.dashboard-page .bs-dash .chart-filter-reset:hover{background:var(--wash)}
+.dashboard-page .bs-dash .chart-filter-item{
+  gap:10px; padding:7px 8px; border-radius:8px; font-size:13px; color:var(--muted);
+  transition:background-color .12s ease, color .12s ease;
+}
+.dashboard-page .bs-dash .chart-filter-item:hover{background:var(--wash); color:var(--ink)}
+.dashboard-page .bs-dash .chart-filter-item:has(input:checked){color:var(--ink)}
+.dashboard-page .bs-dash .chart-filter-item input[type="checkbox"]{
+  appearance:none; -webkit-appearance:none; margin:0; flex-shrink:0;
+  width:16px; height:16px; border-radius:5px; display:grid; place-content:center;
+  border:1.5px solid var(--line-strong); background:var(--paper); cursor:pointer;
+  transition:background-color .12s ease, border-color .12s ease;
+}
+.dashboard-page .bs-dash .chart-filter-item:hover input[type="checkbox"]{border-color:var(--muted)}
+.dashboard-page .bs-dash .chart-filter-item input[type="checkbox"]:checked{background:var(--ink); border-color:var(--ink)}
+.dashboard-page .bs-dash .chart-filter-item input[type="checkbox"]:checked::after{
+  content:""; width:8px; height:4.5px; margin-top:-2px;
+  border-left:2px solid var(--paper); border-bottom:2px solid var(--paper); transform:rotate(-45deg);
+}
+.dashboard-page .bs-dash .chart-filter-item input[type="checkbox"]:focus-visible{
+  outline:2px solid color-mix(in srgb, var(--ink) 45%, transparent); outline-offset:2px;
+}
+.dashboard-page .bs-dash .chart-filter-item input[type="checkbox"]:disabled{opacity:.4; cursor:not-allowed}
+
+@keyframes ga4PopIn{from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:none}}
+
+/* Property + device Select popups. They render in a portal (outside
+   .bs-dash), so they're scoped by their own class. App.css's unlayered
+   `*{padding:0}` reset beats Tailwind's layered padding utilities, which is
+   why the stock shadcn item padding never applied — set it explicitly. */
+.bs-select-content{
+  padding:4px !important; border-radius:12px !important;
+  background:var(--raised) !important; color:var(--ink) !important;
+  border:1px solid var(--line) !important;
+  box-shadow:var(--shadow-lg), 0 2px 8px rgba(0,0,0,.08) !important; --tw-ring-shadow:0 0 #0000;
+  min-width:max(var(--radix-select-trigger-width), 200px) !important;
+  max-width:min(360px, calc(100vw - 24px));
+  max-height:min(320px, var(--radix-select-content-available-height)) !important;
+}
+.bs-select-content [data-radix-select-viewport]{height:auto !important; padding:0 !important}
+.bs-select-content [data-slot="select-item"]{
+  min-height:34px; padding:8px 32px 8px 10px !important; margin:0 !important; border-radius:8px !important;
+  font-size:13px !important; line-height:1.3; color:var(--ink-2) !important; cursor:pointer;
+  transition:background-color .12s ease, color .12s ease;
+}
+.bs-select-content [data-slot="select-item"] > span:last-child{
+  display:block !important; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.bs-select-content [data-slot="select-item"][data-highlighted]{background:var(--wash) !important; color:var(--ink) !important}
+.bs-select-content [data-slot="select-item"][data-state="checked"]{color:var(--ink) !important; font-weight:600}
+.bs-select-content [data-slot="select-item"] > span:first-child{right:10px !important; color:var(--ink)}
+.bs-select-content [data-slot="select-item"] svg{width:14px; height:14px}
+
+/* KPI strip: one surface, hairline dividers, the number dominates. */
+/* "Updating data..." while a dashboard refetches. The anchor is a zero-height
+   sticky item whose negative margin cancels the column gap it would add, so
+   the layout is identical with and without it; the pill floats over the top
+   of the KPI strip (and stays in view if the page is scrolled). */
+.dashboard-page .bs-dash{--bs-gap:16px}
+.dashboard-page .bs-dash .dash-refresh-anchor{
+  position:sticky; top:0; z-index:30; height:0; margin-bottom:calc(-1 * var(--bs-gap));
+  pointer-events:none;
+}
+.dashboard-page .bs-dash .dash-refresh-overlay{
+  position:absolute; top:12px; left:0; right:0; width:fit-content; margin:0 auto !important;
+  padding:8px 14px; gap:9px; border-radius:999px; font-size:12.5px; font-weight:550;
+  background:color-mix(in srgb, var(--raised) 92%, transparent); border:1px solid var(--line);
+  box-shadow:var(--shadow);
+}
+.dashboard-page .bs-dash .dash-refresh-spinner{width:14px; height:14px; border-width:2px}
+
+/* Dividers are drawn by each card (right + bottom hairlines, clipped at the
+   strip's edge), so a short last row leaves clean surface, not grey gaps. */
+.dashboard-page .bs-dash .bs-kpis{
+  display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:0 !important;
+  background:var(--paper); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+.dashboard-page .bs-dash .bs-kpis:empty{display:none}
+/* Google Ads reports a 7th KPI (cost / conversion): keep it on one row. */
+.dashboard-page .bs-dash .bs-kpis:has(> .kpi-card:nth-child(7)){grid-template-columns:repeat(7, minmax(0,1fr))}
+.dashboard-page .bs-dash .kpi-card{
+  background:var(--paper) !important; border:0 !important; border-radius:0 !important;
+  box-shadow:1px 0 0 0 var(--line), 0 1px 0 0 var(--line) !important; transform:none !important; min-height:0;
+  padding:16px 18px 15px !important; gap:0; overflow:hidden;
+  transition:background-color .15s ease;
+}
+.dashboard-page .bs-dash .kpi-card::before{display:none}
+.dashboard-page .bs-dash .kpi-card:hover{background:var(--wash-2) !important}
+.dashboard-page .bs-dash .kpi-card .kpi-label{
+  display:flex; align-items:center; gap:7px; margin:0 0 10px !important;
+  font-size:12px !important; font-weight:550 !important; letter-spacing:0 !important;
+  text-transform:none !important; color:var(--muted) !important;
+}
+.dashboard-page .bs-dash .kpi-card .kpi-label::before{
+  content:""; width:6px; height:6px; border-radius:2px; flex-shrink:0;
+  background:var(--kpi-accent, var(--muted));
+}
+.dashboard-page .bs-dash .kpi-card .kpi-value{
+  font-size:28px !important; font-weight:650 !important; letter-spacing:-.025em !important;
+  line-height:1.05 !important; margin:0 0 6px !important; color:var(--ink) !important;
+  font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.dashboard-page .bs-dash .kpi-card .kpi-detail{
+  font-size:12px !important; color:var(--faint) !important; font-weight:450 !important; line-height:1.3;
+}
+.dashboard-page .bs-dash .kpi-card .kpi-label .kpi-skel-sm{display:block}
+
+/* Panels: one padding system (head 20px gutter, body inherits it). */
+.dashboard-page .bs-dash .analytics-grid-main,
+.dashboard-page .bs-dash .analytics-grid-tables{gap:16px !important}
+.dashboard-page .bs-dash .analytics-panel{
+  padding:0 !important; border-radius:14px !important;
+  background:var(--paper) !important; border:1px solid var(--line) !important;
+  box-shadow:var(--shadow-sm) !important;
+}
+.dashboard-page .bs-dash .analytics-panel-head{padding:16px 20px 12px !important; gap:12px; align-items:flex-start}
+.dashboard-page .bs-dash .analytics-panel-head h3{
+  font-size:14px; font-weight:650; letter-spacing:-.01em; line-height:1.3; margin:0 0 3px; color:var(--ink);
+}
+.dashboard-page .bs-dash .analytics-panel-head p{font-size:12.5px; line-height:1.4; color:var(--muted)}
+.dashboard-page .bs-dash .analytics-panel-head .dash-status{height:22px !important; font-size:11px !important; font-weight:550 !important}
+
+/* Chart containers: same insets everywhere, charts themselves unchanged. */
+.dashboard-page .bs-dash .analytics-chart{padding:0 16px 14px !important}
+.dashboard-page .bs-dash .analytics-chart-skeleton{width:calc(100% - 32px) !important; margin:0 16px 16px; border-radius:10px !important}
+.dashboard-page .bs-dash .recharts-legend-wrapper{padding-top:8px !important}
+.dashboard-page .bs-dash .recharts-legend-wrapper > div{font-size:12px; gap:16px}
+.dashboard-page .bs-dash .recharts-legend-wrapper > div > div{color:var(--ink-2)}
+.dashboard-page .bs-dash .analytics-chart-empty{
+  min-height:180px; margin:0 16px 16px; border-radius:10px; padding:24px;
+  border:1px dashed var(--line-strong); background:var(--wash-2);
+}
+.dashboard-page .bs-dash .analytics-chart-empty strong{font-size:13.5px; font-weight:650}
+.dashboard-page .bs-dash .analytics-chart-empty p{font-size:12.5px}
+.dashboard-page .bs-dash .ga4-conv-summary{
+  margin-top:auto; padding:11px 20px 13px; border-top:1px solid var(--line);
+  font-size:12.5px; color:var(--muted);
+}
+.dashboard-page .bs-dash .ga4-conv-summary strong{color:var(--ink); font-weight:650; font-variant-numeric:tabular-nums}
+/* Funnel sits centred in whatever height its row gives it (the organic
+   panel beside it is usually taller). */
+.dashboard-page .bs-dash .gads-svg-funnel{
+  flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:8px 56px 20px 20px; min-height:220px; overflow:visible !important;
+}
+.dashboard-page .bs-dash .gads-svg-funnel svg{width:100%}
+.dashboard-page .bs-dash .gads-funnel-cpc{
+  align-self:stretch; margin:12px -56px 0 0; padding-top:12px; font-size:12.5px;
+}
+/* The stage labels are drawn a little past the SVG's 500px viewBox, so the
+   right padding above is what keeps "Attributed revenue" from clipping. */
+.dashboard-page .bs-dash .gads-svg-funnel svg{max-width:500px; height:auto}
+.dashboard-page .bs-dash .analytics-grid-tables > .analytics-panel{display:flex; flex-direction:column}
+/* Klaviyo's first row wraps its panels in plain divs (for show/hide); let
+   the panel fill the wrapper so both cards in the row share one height. */
+.dashboard-page .bs-dash .analytics-grid-main > div:not(.analytics-panel){display:flex; flex-direction:column; min-width:0}
+.dashboard-page .bs-dash .analytics-grid-main > div:not(.analytics-panel) > .analytics-panel{flex:1 1 auto}
+
+/* HubSpot deal-stage bars + Google Ads cost-per-conversion footer. */
+.dashboard-page .bs-dash .hs-funnel{gap:10px; padding:8px 20px 18px}
+.dashboard-page .bs-dash .hs-funnel-label{font-size:12.5px; color:var(--ink-2)}
+.dashboard-page .bs-dash .hs-funnel-bar-wrap{height:14px; border-radius:5px; background:var(--wash)}
+.dashboard-page .bs-dash .hs-funnel-bar{border-radius:5px}
+.dashboard-page .bs-dash .hs-funnel-value{font-size:12.5px; font-weight:650; color:var(--ink)}
+.dashboard-page .bs-dash .hs-funnel-count{font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums}
+.dashboard-page .bs-dash .gads-funnel-cpc{border-top:1px solid var(--line); color:var(--muted)}
+.dashboard-page .bs-dash .gads-funnel-cpc strong{color:var(--ink); font-weight:650; font-variant-numeric:tabular-nums}
+
+/* States: one alert, one empty-state card, same everywhere. */
+.dashboard-page .bs-dash .analytics-alert{
+  gap:10px; padding:11px 14px; border-radius:12px; font-size:13px; font-weight:500; line-height:1.45;
+}
+.dashboard-page .bs-dash .analytics-alert > i{font-size:16px; flex-shrink:0}
+.dashboard-page .bs-dash .analytics-alert > span{min-width:0; overflow-wrap:anywhere}
+.dashboard-page .bs-dash .analytics-alert button{
+  flex-shrink:0; height:30px; padding:0 10px; border-radius:8px; font-size:12.5px; font-weight:600;
+}
+.dashboard-page .bs-dash .analytics-alert button:hover{background:color-mix(in srgb, var(--dash-warn) 12%, transparent)}
+.dashboard-page .bs-dash .analytics-empty{
+  gap:14px; padding:16px 18px; border-radius:14px !important; box-shadow:none;
+  background:var(--paper); border:1px solid var(--line);
+}
+.dashboard-page .bs-dash .analytics-empty-icon{
+  width:40px; height:40px; border-radius:10px; font-size:19px; box-shadow:none;
+  background:var(--wash); color:var(--muted); border:1px solid var(--line);
+}
+.dashboard-page .bs-dash .analytics-empty h3{font-size:14px; font-weight:650; margin-bottom:3px}
+.dashboard-page .bs-dash .analytics-empty p{font-size:12.5px; line-height:1.5; color:var(--muted)}
+.dashboard-page .bs-dash .analytics-empty .analytics-primary{
+  height:34px !important; padding:0 13px !important; border-radius:9px !important;
+  font-size:13px !important; font-weight:600 !important; box-shadow:none !important;
+  background:var(--ink) !important; color:var(--paper) !important;
+}
+
+/* Device mix. */
+.dashboard-page .bs-dash .device-head{padding-bottom:4px !important}
+.dashboard-page .bs-dash .device-select{width:132px !important; justify-content:space-between}
+.dashboard-page .bs-dash .device-donut-card{padding:0 16px 16px; gap:4px}
+.dashboard-page .bs-dash .device-donut-total{font-weight:650; letter-spacing:-.03em}
+.dashboard-page .bs-dash .device-donut-legend{gap:2px; margin-top:0}
+.dashboard-page .bs-dash .device-donut-legend button{
+  border-radius:8px; padding:8px 10px; transform:none;
+  transition:background-color .15s ease, border-color .15s ease;
+}
+.dashboard-page .bs-dash .device-donut-legend button:hover{background:var(--wash-2); border-color:transparent}
+.dashboard-page .bs-dash .device-donut-legend button.active{background:var(--wash); border-color:var(--line)}
+.dashboard-page .bs-dash .device-donut-legend span{font-size:13px; font-weight:550}
+.dashboard-page .bs-dash .device-donut-legend strong{font-size:13px; font-weight:650; font-variant-numeric:tabular-nums}
+.dashboard-page .bs-dash .device-donut-legend em{font-weight:500; color:var(--muted)}
+
+/* Users by country: map + ranked list, stacks on narrow widths. */
+.dashboard-page .bs-dash .ga4-country-layout{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,360px); align-items:start;
+  border-top:1px solid var(--line);
+}
+.dashboard-page .bs-dash .ga4-world-map{
+  position:relative; align-self:center; min-height:0 !important;
+  margin:16px 20px !important; border-radius:10px; overflow:visible; background:transparent;
+}
+.dashboard-page .bs-dash .ga4-world-map svg{display:block; width:100% !important; height:auto !important; max-height:460px}
+.dashboard-page .bs-dash .ga4-country-list{
+  gap:0 !important; padding:8px 20px 12px !important; border-left:1px solid var(--line); align-self:stretch;
+}
+.dashboard-page .bs-dash .ga4-country-item{
+  display:grid; grid-template-columns:16px 22px minmax(0,1fr) 40px 48px; align-items:center; gap:8px;
+  padding:8px 0; border-bottom:1px solid var(--line-2);
+}
+.dashboard-page .bs-dash .ga4-country-item:last-child{border-bottom:0}
+.dashboard-page .bs-dash .ga4-country-item > span:nth-child(3){font-size:13px !important; color:var(--ink-2) !important}
+.dashboard-page .bs-dash .ga4-country-item > span:nth-child(4){font-size:12px !important; font-variant-numeric:tabular-nums}
+.dashboard-page .bs-dash .ga4-country-item > span:nth-child(5){font-size:13px !important; font-weight:650 !important; font-variant-numeric:tabular-nums}
+.dashboard-page .bs-dash .ga4-country-rank{font-size:11px !important; color:var(--faint) !important; text-align:left}
+
+/* Tables: readable rows, right-aligned numbers, full-bleed with 20px gutter.
+   Numeric columns are flagged per column (meta.numeric -> data-numeric). */
+.dashboard-page .bs-dash .bs-table{border-top:1px solid var(--line)}
+.dashboard-page .bs-dash .analytics-panel-head + .bs-table{border-top:0}
+.dashboard-page .bs-dash .bs-table [data-slot="table-container"]{overflow-x:auto}
+.dashboard-page .bs-dash .bs-table table{font-size:13px !important}
+.dashboard-page .bs-dash .bs-table thead tr{border-bottom:1px solid var(--line); background:var(--wash-2)}
+.dashboard-page .bs-dash .bs-table tbody tr{border-bottom:1px solid var(--line-2); transition:background-color .12s ease}
+.dashboard-page .bs-dash .bs-table tbody tr:last-child{border-bottom:0}
+.dashboard-page .bs-dash .bs-table tbody tr:hover{background:var(--wash-2)}
+.dashboard-page .bs-dash .bs-table th{
+  height:36px; padding:0 12px !important; text-align:left; vertical-align:middle;
+  font-size:11px !important; font-weight:600 !important; letter-spacing:.05em !important;
+  text-transform:uppercase !important; color:var(--muted) !important;
+}
+.dashboard-page .bs-dash .bs-table th button{
+  height:auto; padding:0 !important; gap:4px !important;
+  font:inherit !important; letter-spacing:inherit !important; text-transform:inherit !important;
+  color:inherit !important; transition:color .12s ease;
+}
+.dashboard-page .bs-dash .bs-table th button:hover{color:var(--ink) !important}
+.dashboard-page .bs-dash .bs-table th button svg{width:12px; height:12px}
+.dashboard-page .bs-dash .bs-table td{
+  padding:10px 12px !important; vertical-align:middle;
+  font-size:13px !important; color:var(--ink-2) !important; font-variant-numeric:tabular-nums;
+}
+.dashboard-page .bs-dash .bs-table th[data-numeric],
+.dashboard-page .bs-dash .bs-table td[data-numeric]{text-align:right; white-space:nowrap}
+.dashboard-page .bs-dash .bs-table th:first-child,
+.dashboard-page .bs-dash .bs-table td:first-child{padding-left:20px !important; max-width:none; min-width:140px}
+.dashboard-page .bs-dash .bs-table th:last-child,
+.dashboard-page .bs-dash .bs-table td:last-child{padding-right:20px !important}
+.dashboard-page .bs-dash .bs-table td:first-child{color:var(--ink) !important; font-weight:500}
+.dashboard-page .bs-dash .bs-table td div.font-medium{font-size:13px !important; color:var(--ink) !important; font-weight:500}
+.dashboard-page .bs-dash .bs-table td div.text-xs{font-size:11.5px !important; color:var(--muted) !important; margin-top:2px}
+.dashboard-page .bs-dash .bs-table td[colspan]{text-align:center; color:var(--muted) !important; font-weight:400}
+
+/* Status pills in tables. App.css's unlayered `*{padding:0}` wipes the
+   Badge's Tailwind padding and its `td span` rule overrides colour, which left
+   text jammed against a 20px outline - so the pill is fully defined here. */
+.dashboard-page .bs-dash [data-slot="badge"].bs-pill{
+  display:inline-flex; align-items:center; gap:6px; height:22px !important; max-width:100%;
+  padding:0 9px 0 8px !important; border-radius:999px !important; overflow:hidden;
+  border:1px solid var(--line) !important; background:var(--wash) !important;
+  font-size:11.5px !important; font-weight:550 !important; line-height:1 !important;
+  letter-spacing:0 !important; text-transform:none !important; white-space:nowrap;
+  color:var(--ink-2) !important;
+}
+.dashboard-page .bs-dash [data-slot="badge"].bs-pill::before{
+  content:""; flex-shrink:0; width:6px; height:6px; border-radius:50%; background:var(--faint);
+}
+.dashboard-page .bs-dash [data-slot="badge"].bs-pill[data-tone="positive"]{
+  color:var(--ok) !important; background:var(--ok-soft) !important; border-color:var(--ok-border) !important;
+}
+.dashboard-page .bs-dash [data-slot="badge"].bs-pill[data-tone="positive"]::before{background:var(--ok)}
+.dashboard-page .bs-dash [data-slot="badge"].bs-pill[data-tone="muted"]{color:var(--muted) !important; background:transparent !important}
+
+/* Pagination: [Previous]  Page x of y  [Next], always inside the panel. */
+.dashboard-page .bs-dash .bs-table > div > div:nth-child(2){
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:10px 20px 12px !important; border-top:1px solid var(--line);
+}
+.dashboard-page .bs-dash .bs-table > div > div:nth-child(2) > *{margin:0 !important}
+.dashboard-page .bs-dash .bs-table > div > div:nth-child(2) > div:first-child{
+  order:1; flex:1 1 auto; text-align:center; white-space:nowrap;
+  font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums;
+}
+.dashboard-page .bs-dash .bs-table > div > div:nth-child(2) > div:last-child{display:contents}
+.dashboard-page .bs-dash .bs-table > div > div:nth-child(2) button{
+  margin:0 !important; flex-shrink:0; height:30px; padding:0 12px; border-radius:8px;
+  font-size:12.5px; font-weight:550; color:var(--ink-2);
+  background:var(--paper); border:1px solid var(--line); box-shadow:none;
+  transition:background-color .12s ease, border-color .12s ease, color .12s ease;
+}
+.dashboard-page .bs-dash .bs-table > div > div:nth-child(2) button:first-child{order:0}
+.dashboard-page .bs-dash .bs-table > div > div:nth-child(2) button:last-child{order:2}
+.dashboard-page .bs-dash .bs-table > div > div:nth-child(2) button:hover:not(:disabled){
+  background:var(--wash); border-color:var(--line-strong); color:var(--ink);
+}
+.dashboard-page .bs-dash .bs-table > div > div:nth-child(2) button:disabled{opacity:.45}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+
+@media (max-width:1280px){
+  .dashboard-page .bs-dash .bs-kpis{grid-template-columns:repeat(3, minmax(0,1fr))}
+  .dashboard-page .bs-dash .bs-kpis:has(> .kpi-card:nth-child(7)){grid-template-columns:repeat(4, minmax(0,1fr))}
+}
+@media (max-width:1024px){
+  .dashboard-page .bs-dash .ga4-country-layout{grid-template-columns:minmax(0,1fr)}
+  .dashboard-page .bs-dash .ga4-country-list{border-left:0; border-top:1px solid var(--line)}
+}
+@media (max-width:860px){
+  .bs-toolbar{align-items:stretch}
+  .bs-toolbar-context{flex:1 1 100%}
+  .bs-toolbar-controls{flex:1 1 100%; justify-content:flex-start}
+  .dashboard-page .bs-dash .analytics-select.wide{flex:1 1 180px; width:auto !important}
+}
+@media (max-width:600px){
+  .dashboard-page .bs-dash{gap:12px !important; --bs-gap:12px}
+  .bs-toolbar-controls{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .bs-toolbar-controls > *{min-width:0}
+  .dashboard-page .bs-dash .bs-toolbar-controls > .analytics-select.wide{width:100% !important}
+  .dashboard-page .bs-dash .date-range-trigger,
+  .dashboard-page .bs-dash .bs-refresh-btn{width:100%; justify-content:center}
+  .dashboard-page .bs-dash .bs-kpis,
+  .dashboard-page .bs-dash .bs-kpis:has(> .kpi-card:nth-child(7)){grid-template-columns:repeat(2, minmax(0,1fr))}
+  .dashboard-page .bs-dash .kpi-card{padding:13px 14px 12px !important}
+  .dashboard-page .bs-dash .kpi-card .kpi-value{font-size:22px !important}
+  .dashboard-page .bs-dash .analytics-panel-head{padding:14px 16px 10px !important}
+  .dashboard-page .bs-dash .analytics-chart{padding:0 8px 12px !important}
+  .dashboard-page .bs-dash .bs-table th:first-child,
+  .dashboard-page .bs-dash .bs-table td:first-child{padding-left:16px !important; min-width:120px}
+  .dashboard-page .bs-dash .bs-table th:last-child,
+  .dashboard-page .bs-dash .bs-table td:last-child{padding-right:16px !important}
+  .dashboard-page .bs-dash .bs-table > div > div:nth-child(2){padding:10px 16px 12px !important}
+  .dashboard-page .bs-dash .ga4-conv-summary{padding:10px 16px 12px}
+  .dashboard-page .bs-dash .ga4-country-list{padding:6px 16px 10px !important}
+  .dashboard-page .bs-dash .gads-svg-funnel{padding:4px 44px 14px 12px}
+  .dashboard-page .bs-dash .gads-funnel-cpc{margin-right:-44px}
+  .dashboard-page .bs-dash .hs-funnel{padding:6px 16px 14px}
+}
+@media (max-width:420px){
+  .dashboard-page .bs-dash .kpi-card .kpi-value{font-size:20px !important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .dash-source-tab,
+  .dashboard-page .bs-dash *{transition:none !important}
+  .dashboard-page .bs-dash .date-range-dropdown,
+  .dashboard-page .bs-dash .chart-filter-dropdown{animation:none}
+}

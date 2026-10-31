@@ -1,0 +1,246 @@
+.bs-connect-dialog,
+[data-slot="dialog-overlay"]{
+  z-index:110 !important;
+}
+.bs-connect-dialog{
+  width:min(560px, calc(100vw - 32px)) !important;
+  max-width:560px !important;
+  padding:0 !important;
+  gap:0 !important;
+  overflow:hidden !important;
+  border-radius:18px !important;
+  background:var(--paper) !important;
+  color:var(--ink) !important;
+  border:1px solid var(--line) !important;
+  box-shadow:0 24px 80px rgba(0,0,0,.22) !important;
+}
+.bs-dialog-head{
+  padding:0 !important;
+  border-bottom:1px solid var(--line);
+}
+.bs-dialog-title-row{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  padding:22px 24px 20px;
+}
+.bs-dialog-logo{
+  width:44px;
+  height:44px;
+  border-radius:13px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--paper);
+  border:1px solid var(--line);
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+  flex-shrink:0;
+  overflow:hidden;
+}
+.bs-dialog-logo.conn-logo{width:44px; height:44px; border-radius:13px}
+.bs-dialog-logo .conn-logo-mark{width:24px; height:24px; background:var(--logo-color); opacity:1}
+.bs-dialog-logo .conn-logo-fallback{color:var(--accent); font-size:15px; font-weight:900}
+:root[data-theme="dark"] .bs-dialog-logo{
+  background:#fdfcf8;
+  border-color:rgba(255,255,255,.16);
+}
+:root[data-theme="dark"] .bs-dialog-logo .conn-logo-mark{filter:saturate(1.1) contrast(1.08)}
+:root[data-theme="dark"] .bs-dialog-logo .conn-logo-fallback{color:#151513}
+.bs-dialog-title-copy{
+  min-width:0;
+  padding-right:36px;
+}
+.bs-dialog-title{
+  font-size:18px !important;
+  line-height:1.2 !important;
+  font-weight:800 !important;
+  letter-spacing:-.02em;
+  color:var(--ink) !important;
+}
+.bs-dialog-desc{
+  margin-top:5px !important;
+  font-size:13px !important;
+  line-height:1.5 !important;
+  color:var(--muted) !important;
+}
+.bs-dialog-body{
+  display:grid;
+  gap:14px;
+  padding:18px 24px;
+}
+.bs-plan-card,
+.bs-option-card{
+  border:1px solid var(--line) !important;
+  background:var(--paper) !important;
+  border-radius:14px !important;
+  box-shadow:0 1px 2px rgba(0,0,0,.03) !important;
+  padding:0 !important;
+}
+.bs-plan-card{
+  background:var(--paper) !important;
+}
+.bs-card-header{
+  padding:15px 16px !important;
+}
+.bs-card-title{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  font-size:13.5px !important;
+  line-height:1.25 !important;
+  font-weight:800 !important;
+  color:var(--ink) !important;
+}
+.bs-card-title i{
+  color:var(--accent);
+  font-size:16px;
+}
+.bs-card-desc{
+  margin-top:6px !important;
+  font-size:12px !important;
+  line-height:1.55 !important;
+  color:var(--muted) !important;
+}
+.bs-option-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+.bs-card-content{
+  display:grid !important;
+  gap:12px !important;
+  padding:0 16px 16px !important;
+}
+.bs-badge{
+  height:24px !important;
+  padding:0 9px !important;
+  border-radius:999px !important;
+  background:var(--wash) !important;
+  border:1px solid var(--line) !important;
+  color:var(--ink-2) !important;
+  font-size:11px !important;
+  font-weight:800 !important;
+}
+.bs-field{
+  display:grid;
+  gap:7px;
+  font-size:12px;
+  font-weight:800;
+  color:var(--ink-2);
+}
+.bs-input{
+  height:42px !important;
+  width:100% !important;
+  border:1px solid var(--line) !important;
+  border-radius:11px !important;
+  background:var(--paper) !important;
+  color:var(--ink) !important;
+  padding:0 12px !important;
+  font-size:13px !important;
+  outline:none !important;
+  box-shadow:none !important;
+}
+.bs-input:focus{
+  border-color:#111 !important;
+  box-shadow:0 0 0 3px rgba(17,17,17,.08) !important;
+}
+.bs-input.mono{
+  font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+}
+.bs-primary-action,
+.bs-save-action{
+  min-height:42px !important;
+  width:100%;
+  border-radius:11px !important;
+  background:#111 !important;
+  color:#fff !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  border:1px solid #111 !important;
+}
+.bs-primary-action:hover,
+.bs-save-action:hover{
+  background:#000 !important;
+}
+.bs-secondary-action,
+.bs-cancel-action{
+  min-height:40px !important;
+  border-radius:11px !important;
+  background:var(--paper) !important;
+  color:var(--ink) !important;
+  border:1px solid var(--line) !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+}
+.bs-secondary-action{
+  width:100%;
+}
+.bs-secondary-action:hover,
+.bs-cancel-action:hover{
+  background:var(--wash) !important;
+}
+.bs-help-text{
+  font-size:12px;
+  line-height:1.55;
+  color:var(--muted);
+}
+.bs-scope-list{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.bs-separator-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--muted);
+  font-size:11.5px;
+  font-weight:700;
+}
+.bs-separator{
+  flex:1;
+  height:1px;
+  background:var(--line) !important;
+}
+.bs-error-card{
+  border:1px solid var(--bad-border) !important;
+  background:var(--bad-soft) !important;
+  color:var(--bad) !important;
+  border-radius:12px !important;
+  padding:10px 12px !important;
+  font-size:12px !important;
+}
+.bs-dialog-foot{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:10px !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  padding:16px 24px !important;
+  background:var(--wash-2) !important;
+  border-top:1px solid var(--line) !important;
+}
+.bs-dialog-foot .bs-cancel-action{
+  flex:0 0 auto !important;
+  min-width:96px !important;
+  padding-inline:16px !important;
+}
+.bs-dialog-foot .bs-save-action{
+  flex:1 1 auto !important;
+  width:auto !important;
+  min-width:0 !important;
+  padding-inline:18px !important;
+}
+
+@media (max-width: 640px) {
+  .bs-connect-dialog { width: calc(100vw - 20px) !important; max-height: calc(100dvh - 20px) !important; overflow-y: auto !important; border-radius: 16px !important; }
+  .bs-dialog-title-row { padding: 18px 16px 16px; gap: 10px; }
+  .bs-dialog-title { font-size: 16px !important; }
+  .bs-dialog-desc { font-size: 12px !important; }
+  .bs-dialog-body { padding: 14px 16px; }
+  .bs-dialog-foot { flex-direction: column-reverse !important; padding: 14px 16px !important; }
+  .bs-dialog-foot button, .bs-dialog-foot .bs-save-action, .bs-dialog-foot .bs-cancel-action { width: 100% !important; min-height: 42px !important; }
+  .bs-option-head { flex-direction: column; gap: 8px; }
+}

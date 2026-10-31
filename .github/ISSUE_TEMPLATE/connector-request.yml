@@ -1,0 +1,25 @@
+name: Connector request
+description: Ask for a new data source.
+labels: [connector-request]
+body:
+  - type: input
+    id: platform
+    attributes:
+      label: Platform name
+    validations:
+      required: true
+  - type: input
+    id: docs
+    attributes:
+      label: API documentation link
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Which numbers do agencies report from it?
+    validations:
+      required: true
+  - type: dropdown
+    id: build
+    attributes:
+      label: Willing to build it?
+      options: ["Yes, with guidance", "No"]

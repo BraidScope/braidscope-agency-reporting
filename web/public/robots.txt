@@ -1,0 +1,5 @@
+# Braidscope app. Only the sign-in page is public; everything else needs a login.
+User-agent: *
+Allow: /$
+Disallow: /
+Sitemap: https://www.braidscope.cloud/sitemap.xml

@@ -1,0 +1,38 @@
+node_modules/
+dist/
+build/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+*.log
+caddy_data/
+pgdata/
+.serena/
+supabase/.temp/
+
+# Local-only business notes, strategy docs, credentials notes, and scratch files.
+# Keep this folder in the workspace when you want Codex to read it, but never push it.
+local-private/
+.codex-runners/
+.claude-runners/
+
+# Tooling/debug artifacts - generated locally by dev tools during testing
+# sessions, never meant to be committed.
+.playwright-mcp/
+.pytest_cache/
+py/.codex-debug/
+py/.codex-debug-err.txt
+py/.codex-debug-out.txt
+
+# Vite writes a transient compiled config next to vite.config.js during builds
+web/vite.config.js.timestamp-*.mjs
+
+# Self-host runtime files
+deploy/selfhost/.env
+deploy/selfhost/.first-owner
+deploy/selfhost/backups/

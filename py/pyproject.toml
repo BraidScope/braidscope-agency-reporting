@@ -1,0 +1,8 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 160
+
+[tool.ruff.lint]
+# Widened in steps, one PR each. Today: pyflakes (F), warnings (W), syntax errors (E9).
+# Next: E (pycodestyle), then B (bugbear), then UP (pyupgrade).
+select = ["F", "W", "E9"]

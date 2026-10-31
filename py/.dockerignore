@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+.pytest_cache
+.venv
+venv
+tests
+.env
+.env.*
+*.log
+.braidscope-debug.log
+.codex-debug*

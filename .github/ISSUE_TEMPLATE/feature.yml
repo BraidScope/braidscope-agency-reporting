@@ -1,0 +1,17 @@
+name: Feature request
+description: Something Braidscope should do.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The Monday-morning problem this solves
+    validations:
+      required: true
+  - type: textarea
+    id: who
+    attributes:
+      label: Who has this problem?
+  - type: textarea
+    id: today
+    attributes:
+      label: How do you handle it today?

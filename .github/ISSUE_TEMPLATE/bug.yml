@@ -1,0 +1,38 @@
+name: Bug report
+description: Something is broken.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: The build hash shown at the bottom of the sidebar, or the git commit.
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Install type
+      options: [Self-hosted, Cloud (braidscope.cloud)]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Remove keys, tokens and client names before pasting.
+      render: shell

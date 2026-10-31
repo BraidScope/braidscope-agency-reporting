@@ -1,0 +1,52 @@
+# Braidscope self-host routing.
+#
+# DOMAIN=localhost      -> plain http on port 80 (local test, app shows a banner)
+# DOMAIN=app.example.com -> automatic HTTPS from Let's Encrypt
+#
+# The (supabase) snippet exposes the three Supabase services the app uses on
+# the same origin as the app, which is what the browser and the backend expect.
+# No Kong gateway: row level security and JWT checks live in the services.
+
+{
+	email {$ACME_EMAIL}
+}
+
+(supabase) {
+	handle_path /auth/v1/* {
+		reverse_proxy auth:9999
+	}
+	handle_path /rest/v1/* {
+		reverse_proxy rest:3000
+	}
+	handle_path /storage/v1/* {
+		reverse_proxy storage:5000
+	}
+}
+
+(app) {
+	encode zstd gzip
+	import supabase
+	handle /py/* {
+		reverse_proxy py:8000
+	}
+	handle /api/* {
+		reverse_proxy py:8000
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+# Public site.
+{$DOMAIN} {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+	import app
+}
+
+# Internal gateway for the backend (SUPABASE_URL=http://caddy:8000). Not published.
+http://:8000 {
+	import supabase
+}

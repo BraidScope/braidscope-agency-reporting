@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Braidscope: client reporting for marketing agencies</title>
+    <meta name="description" content="One workspace per client. Dashboards from Google Ads, Meta Ads, GA4, HubSpot and Klaviyo, Ask AI over the live numbers, and branded PDF reports. Built for agencies with 8 to 30 clients." />
+    <meta name="theme-color" content="#111111" />
+    <meta name="application-name" content="Braidscope" />
+    <link rel="canonical" href="https://www.braidscope.cloud/" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Braidscope" />
+    <meta property="og:title" content="Braidscope: client reporting for marketing agencies" />
+    <meta property="og:description" content="Every client's ad and analytics numbers in one place, with your agency's branding. Dashboards, Ask AI, PDF reports." />
+    <meta property="og:url" content="https://www.braidscope.cloud/" />
+    <meta property="og:image" content="https://www.braidscope.cloud/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Braidscope: client reporting for marketing agencies" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Braidscope: client reporting for marketing agencies" />
+    <meta name="twitter:description" content="Every client's ad and analytics numbers in one place, with your agency's branding. Dashboards, Ask AI, PDF reports." />
+    <meta name="twitter:image" content="https://www.braidscope.cloud/og-image.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Braidscope",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://www.braidscope.cloud/",
+        "description": "Client reporting for marketing agencies. One workspace per client, dashboards from Google Ads, Meta Ads, GA4, HubSpot and Klaviyo, Ask AI, branded PDF reports.",
+        "publisher": { "@type": "Organization", "name": "AI Data House", "url": "https://braidscope.com/" }
+      }
+    </script>
+    <!-- No favicon by default - shows nothing until a signed-in organization
+         uploads its own via Branding. The href is a genuinely valid,
+         transparent 1x1 PNG (not the bare "data:," this used before) -
+         browsers that fail to decode a malformed/empty data URI tend to
+         silently keep showing whatever favicon they'd already cached for
+         this origin instead of clearing it, which a real (if invisible)
+         image avoids. Its mere presence as an explicit <link rel="icon">
+         also stops browsers from auto-requesting /favicon.ico on their own
+         (which they otherwise do whenever no icon link is present at all) -
+         that file still exists on disk (web/public/favicon.ico) for later
+         use, it's just not wired up as an automatic fallback right now.
+         Single managed tag by design: the dynamic favicon effect in
+         App.jsx updates this exact element (by id) rather than adding a
+         second competing <link rel="icon">, so there's never ambiguity
+         about which icon (or lack of one) a browser should use. -->
+    <link id="app-favicon" rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Pinned to an exact version (not @latest) — jsdelivr's @latest tag was
+         resolving inconsistently across requests, sometimes serving a CSS
+         build missing icons (e.g. ti-plug-connected, ti-chart-bar) that a
+         freshly-fetched @latest response did include, so some glyphs would
+         render blank depending on which cached response a given page load
+         happened to get. -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.46.0/dist/tabler-icons.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const initialTheme = prefersDark ? "dark" : "light";
+        root.setAttribute("data-theme", initialTheme);
+        root.classList.toggle("dark", prefersDark);
+      })();
+    </script>
+    <!-- Runtime settings for self-host images (empty on cloud, see web/docker-entrypoint.d). -->
+    <script src="/config.js"></script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
