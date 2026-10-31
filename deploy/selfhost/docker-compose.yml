@@ -34,10 +34,18 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATABASE: postgres
       POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
       JWT_EXP: ${JWT_EXPIRY:-3600}
     volumes:
+      # Same init files as the official supabase/docker compose. The image's own
+      # migration chain expects the roles and schemas these create.
+      - ./db/realtime.sql:/docker-entrypoint-initdb.d/migrations/99-realtime.sql:ro
+      - ./db/webhooks.sql:/docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql:ro
       - ./db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:ro
       - ./db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:ro
+      - ./db/_supabase.sql:/docker-entrypoint-initdb.d/migrations/97-_supabase.sql:ro
+      - ./db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:ro
+      - ./db/pooler.sql:/docker-entrypoint-initdb.d/migrations/99-pooler.sql:ro
       - dbdata:/var/lib/postgresql/data
       - dbconfig:/etc/postgresql-custom
     healthcheck:
@@ -102,6 +110,9 @@ services:
       PGRST_DB_MAX_ROWS: 1000
       PGRST_DB_EXTRA_SEARCH_PATH: public,extensions
       PGRST_DB_ANON_ROLE: anon
+      # The admin server is what `postgrest --ready` (the healthcheck) talks to.
+      PGRST_ADMIN_SERVER_PORT: 3001
+      PGRST_ADMIN_SERVER_HOST: localhost
       PGRST_JWT_SECRET: ${JWT_SECRET}
       PGRST_DB_USE_LEGACY_GUCS: "false"
       PGRST_APP_SETTINGS_JWT_SECRET: ${JWT_SECRET}
