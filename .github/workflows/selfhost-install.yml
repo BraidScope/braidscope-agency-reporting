@@ -1,0 +1,83 @@
+name: selfhost-install
+
+# Runs the one-command installer end to end on a clean GitHub-hosted runner:
+# secrets minted, images built, stack up, first owner created, health checks
+# pass. Slow (image builds), so it runs only when self-host files change,
+# on a weekly schedule, or by hand. Not a required check.
+
+on:
+  pull_request:
+    paths:
+      - "deploy/selfhost/**"
+      - "py/Dockerfile"
+      - "web/Dockerfile"
+      - "web/docker-entrypoint.d/**"
+      - "supabase/migrations/**"
+      - ".github/workflows/selfhost-install.yml"
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Run the installer against this checkout
+        env:
+          BRAIDSCOPE_DIR: ${{ github.workspace }}
+          BRAIDSCOPE_DOMAIN: localhost
+          BRAIDSCOPE_EMAIL: owner@example.com
+        run: bash deploy/selfhost/install.sh
+
+      - name: Secrets were minted
+        working-directory: deploy/selfhost
+        run: |
+          for name in POSTGRES_PASSWORD JWT_SECRET ANON_KEY SERVICE_ROLE_KEY CONNECTOR_TOKEN_ENCRYPTION_KEY; do
+            grep -qE "^$name=.{8,}" .env || { echo "::error::$name is empty in .env"; exit 1; }
+          done
+
+      - name: Every container healthy, migrate job finished
+        working-directory: deploy/selfhost
+        run: |
+          docker compose ps
+          docker compose ps --format '{{.Service}} {{.State}} {{.Health}}' | tee /tmp/ps.txt
+          ! grep -E 'unhealthy|restarting|exited \(1' /tmp/ps.txt
+          docker compose logs migrate | grep -q "migrate: done"
+
+      - name: Health endpoints and app files
+        run: |
+          curl -fsS http://localhost/py/health | tee /dev/stderr | grep -q '"status":"ok"'
+          curl -fsS http://localhost/api/health >/dev/null
+          curl -fsS http://localhost/auth/v1/health >/dev/null
+          curl -fsS http://localhost/rest/v1/ -H "apikey: $(sed -n 's/^ANON_KEY=//p' deploy/selfhost/.env)" >/dev/null
+          curl -fsS http://localhost/config.js | grep -q 'supabaseAnonKey: "ey'
+          curl -fsS http://localhost/ | grep -q 'og:image'
+
+      - name: First owner can sign in
+        working-directory: deploy/selfhost
+        run: |
+          # install.sh deletes .first-owner after creating the owner; the
+          # password was printed. Re-derive a login check through GoTrue's
+          # token endpoint using the admin API to set a known password.
+          SERVICE_ROLE_KEY="$(sed -n 's/^SERVICE_ROLE_KEY=//p' .env)"
+          ANON_KEY="$(sed -n 's/^ANON_KEY=//p' .env)"
+          USER_ID="$(curl -fsS -H "Authorization: Bearer $SERVICE_ROLE_KEY" 'http://localhost/auth/v1/admin/users?page=1&per_page=1' | python3 -c 'import json,sys; print(json.load(sys.stdin)["users"][0]["id"])')"
+          curl -fsS -X PUT -H "Authorization: Bearer $SERVICE_ROLE_KEY" -H "Content-Type: application/json" \
+            -d '{"password":"ci-password-123"}' "http://localhost/auth/v1/admin/users/$USER_ID" >/dev/null
+          curl -fsS -X POST -H "apikey: $ANON_KEY" -H "Content-Type: application/json" \
+            -d '{"email":"owner@example.com","password":"ci-password-123"}' \
+            'http://localhost/auth/v1/token?grant_type=password' | grep -q '"access_token"'
+          echo "owner sign-in works"
+
+      - name: Logs on failure
+        if: failure()
+        working-directory: deploy/selfhost
+        run: docker compose logs --tail=80

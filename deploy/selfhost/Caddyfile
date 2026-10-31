@@ -1,7 +1,7 @@
 # Braidscope self-host routing.
 #
-# DOMAIN=localhost      -> plain http on port 80 (local test, app shows a banner)
-# DOMAIN=app.example.com -> automatic HTTPS from Let's Encrypt
+# CADDY_SITE=http://localhost   -> plain http on port 80 (local test)
+# CADDY_SITE=app.example.com    -> automatic HTTPS from Let's Encrypt
 #
 # The (supabase) snippet exposes the three Supabase services the app uses on
 # the same origin as the app, which is what the browser and the backend expect.
@@ -37,8 +37,9 @@
 	}
 }
 
-# Public site.
-{$DOMAIN} {
+# Public site. CADDY_SITE is "http://localhost" for a local test (plain http,
+# no certificate) or the bare domain for a real install (automatic HTTPS).
+{$CADDY_SITE} {
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		-Server

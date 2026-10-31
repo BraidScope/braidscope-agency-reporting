@@ -36,8 +36,10 @@ command -v tar >/dev/null 2>&1 || fail "tar is required."
 
 if [ "$DOMAIN" = "localhost" ]; then
   PUBLIC_URL="http://localhost"
+  CADDY_SITE="http://localhost"
 else
   PUBLIC_URL="https://$DOMAIN"
+  CADDY_SITE="$DOMAIN"
 fi
 
 # 1. Code
@@ -59,7 +61,7 @@ cd "$DIR/deploy/selfhost"
 #    JWT_SECRET, exactly like Supabase does it.
 if [ ! -f .env ]; then
   say "Generating secrets"
-  SECRETS="$(docker run --rm python:3.12-slim python - <<'PY'
+  SECRETS="$(docker run --rm -i python:3.12-slim python - <<'PY'
 import base64, hmac, hashlib, json, secrets, time
 def b64(b): return base64.urlsafe_b64encode(b).rstrip(b"=").decode()
 def jwt(secret, payload):
@@ -77,10 +79,16 @@ print("CONNECTOR_TOKEN_ENCRYPTION_KEY=" + base64.urlsafe_b64encode(secrets.token
 print("OWNER_PASSWORD=" + secrets.token_urlsafe(14))
 PY
 )"
+  # Never write an .env with empty secrets (an earlier version did, when the
+  # container's stdin was not attached). Fail loudly instead.
+  for name in POSTGRES_PASSWORD JWT_SECRET ANON_KEY SERVICE_ROLE_KEY CONNECTOR_TOKEN_ENCRYPTION_KEY OWNER_PASSWORD; do
+    echo "$SECRETS" | grep -qE "^$name=.{8,}" || fail "Secret generation failed ($name is empty). Is Docker able to run containers and reach Docker Hub?"
+  done
   OWNER_PASSWORD="$(echo "$SECRETS" | sed -n 's/^OWNER_PASSWORD=//p')"
   {
     echo "DOMAIN=$DOMAIN"
     echo "PUBLIC_URL=$PUBLIC_URL"
+    echo "CADDY_SITE=$CADDY_SITE"
     echo "ACME_EMAIL=$EMAIL"
     echo "$SECRETS" | grep -v '^OWNER_PASSWORD='
     echo "JWT_EXPIRY=3600"
