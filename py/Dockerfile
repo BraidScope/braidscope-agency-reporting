@@ -5,7 +5,7 @@
 # Node 20 and pulls in ~370 packages; the Claude CLI needs Node 22+.
 # Build with --build-arg WITH_AI_CLIS=false to skip the CLIs entirely.
 
-FROM node:22.23.4-bookworm-slim AS node
+FROM node:26.12.0-bookworm-slim AS node
 
 FROM python:3.12-slim-bookworm
 
