@@ -14,7 +14,7 @@
 # Image versions are pinned. Upgrade them on purpose, one at a time.
 # Service definitions follow the official Supabase docker/docker-compose.yml.
 
-name: braidscope
+name: braidscope-selfhost
 
 services:
   db:

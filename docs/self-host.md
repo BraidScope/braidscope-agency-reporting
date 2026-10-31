@@ -88,7 +88,7 @@ Restore:
 
 ```bash
 gunzip -c backups/db-<date>.sql.gz | docker compose exec -T db psql -U postgres
-docker run --rm -v braidscope_storagedata:/data -v $PWD/backups:/b alpine sh -c "cd /data && tar xzf /b/storage-<date>.tar.gz"
+docker run --rm -v braidscope-selfhost_storagedata:/data -v $PWD/backups:/b alpine sh -c "cd /data && tar xzf /b/storage-<date>.tar.gz"
 docker compose restart py storage
 ```
 

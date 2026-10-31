@@ -25,6 +25,10 @@ say()  { printf '\033[1;32m==>\033[0m %s\n' "$*"; }
 fail() { printf '\033[1;31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 
 command -v docker >/dev/null 2>&1 || fail "Docker is not installed. See https://docs.docker.com/engine/install/"
+# Refuse to run next to a Braidscope cloud deployment: same machine, same ports.
+if docker ps --format '{{.Names}}' 2>/dev/null | grep -qE '^braidscope-(caddy|py|web)-1$'; then
+  fail "A Braidscope cloud deployment is already running on this machine. Use a fresh server for self-host."
+fi
 docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 is missing (docker compose). Update Docker."
 docker info >/dev/null 2>&1 || fail "Docker is installed but not running, or you need to be in the docker group."
 command -v curl >/dev/null 2>&1 || fail "curl is required."
