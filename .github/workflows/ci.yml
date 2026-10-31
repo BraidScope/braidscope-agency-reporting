@@ -102,22 +102,17 @@ jobs:
           python-version: "3.12"
       - name: Compile Python
         run: python -m compileall -q py/app
-      - name: Validate compose files
-        # `compose config` refuses to run if an env_file path is missing. The
-        # runner has neither the repo .env nor the server's staging env file,
-        # so create empty placeholders for the check. Nothing reads them.
-        run: |
-          touch .env
-          sudo mkdir -p /home/deploy/braidscope-staging
-          sudo touch /home/deploy/braidscope-staging/.env.staging
-          docker compose -f docker-compose.yml config --quiet
-          docker compose -f docker-compose.staging.yml config --quiet
+      - name: Validate the self-host compose file
+        working-directory: deploy/selfhost
         env:
-          POSTGRES_USER: ci
           POSTGRES_PASSWORD: ci
-          POSTGRES_DB: ci
-          VITE_SUPABASE_URL: https://example.supabase.co
-          VITE_SUPABASE_ANON_KEY: ci
+          JWT_SECRET: ci
+          ANON_KEY: ci
+          SERVICE_ROLE_KEY: ci
+          CONNECTOR_TOKEN_ENCRYPTION_KEY: ci
+          DOMAIN: localhost
+          PUBLIC_URL: http://localhost
+        run: docker compose -f docker-compose.yml config --quiet
 
   gitleaks:
     # Scans the commits this PR or push adds, not the whole history. The
@@ -142,14 +137,20 @@ jobs:
           HEAD_SHA: ${{ github.sha }}
         run: |
           set -e
+          GL="$(go env GOPATH)/bin/gitleaks"
           if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE_SHA" 2>/dev/null; then
-            echo "No usable base commit; scanning the head commit only."
-            RANGE="$HEAD_SHA~1..$HEAD_SHA"
+            if git rev-parse --verify -q "$HEAD_SHA~1" >/dev/null; then
+              RANGE="$HEAD_SHA~1..$HEAD_SHA"
+            else
+              echo "Root commit; scanning the working tree instead of a commit range."
+              "$GL" detect --no-git --redact --no-banner --source .
+              exit 0
+            fi
           else
             RANGE="$BASE_SHA..$HEAD_SHA"
           fi
           echo "Scanning $RANGE"
-          "$(go env GOPATH)/bin/gitleaks" git --redact --no-banner --log-opts="--no-merges $RANGE" .
+          "$GL" git --redact --no-banner --log-opts="--no-merges $RANGE" .
 
   audit:
     # Advisory: known vulnerabilities in dependencies. Reports as warnings,
