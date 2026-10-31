@@ -34,7 +34,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATABASE: postgres
       POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
+      # Do not set POSTGRES_USER: the image initialises the cluster under its
+      # own superuser name and its setup scripts depend on that.
       JWT_EXP: ${JWT_EXPIRY:-3600}
     volumes:
       # Same init files as the official supabase/docker compose. The image's own
