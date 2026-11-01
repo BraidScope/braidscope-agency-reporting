@@ -1,5 +1,10 @@
 # Braidscope
 
+[![CI](https://github.com/BraidScope/braidscope-agency-reporting/actions/workflows/ci.yml/badge.svg)](https://github.com/BraidScope/braidscope-agency-reporting/actions/workflows/ci.yml)
+[![Self-host install](https://github.com/BraidScope/braidscope-agency-reporting/actions/workflows/selfhost-install.yml/badge.svg)](https://github.com/BraidScope/braidscope-agency-reporting/actions/workflows/selfhost-install.yml)
+[![Licence: AGPL-3.0](https://img.shields.io/badge/licence-AGPL--3.0-blue.svg)](LICENSE)
+[![Connectors: read-only](https://img.shields.io/badge/connectors-read--only-2ea44f.svg)](docs/security-model.md)
+
 **Open-source client reporting for marketing agencies.** Every client's ad and analytics numbers in one
 place, with your agency's branding. Self-host it in one command, or use our cloud.
 
@@ -66,6 +71,16 @@ White-label and larger plans: contact us through the site.
 | `docs/` | Install, upgrade, backup, migration |
 
 `AGENTS.md` describes the architecture and the rules in detail.
+
+## Why open source
+
+Agencies hand their clients' ad accounts and analytics to a reporting tool. You should be able to read
+the code that holds those tokens, run it on your own server, and leave at any time with your data. The
+cloud version pays for the work; the code stays open.
+
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md). Connector requests and votes go in Issues.
 
 ## Contributing
 
