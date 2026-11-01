@@ -12,7 +12,9 @@ create table if not exists public.braidscope_migrations (
 SQL
 
 applied=0
-for file in $(ls /migrations/*.sql | sort); do
+# sort -V orders by the leading timestamp, so 20260604_000_init runs before
+# 20260604000100_connector_credentials (plain sort puts digits before "_").
+for file in $(ls /migrations/*.sql | LC_ALL=C sort -V); do
   name="$(basename "$file")"
   already="$(psql -tAq -c "select 1 from public.braidscope_migrations where name = '$name'")"
   if [ "$already" = "1" ]; then
