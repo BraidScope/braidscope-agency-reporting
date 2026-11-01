@@ -2,7 +2,7 @@
 import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
-import { getSession, onAuthChange, signOut, getMyOrganization, ensureOwnOrganization, updateOrganizationBranding, getMfaRequirement } from "./lib/auth";
+import { getSession, verifySession, signOutLocal, onAuthChange, signOut, getMyOrganization, ensureOwnOrganization, updateOrganizationBranding, getMfaRequirement } from "./lib/auth";
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import AiDrawer from "./components/AiDrawer";
@@ -431,7 +431,8 @@ export default function App() {
   useEffect(() => {
     let unsub;
     (async () => {
-      const s = await getSession();
+      // Verify the cached token with the auth server before trusting it.
+      const s = await verifySession(await getSession());
       setSession(s);
       setBootstrapping(false);
       unsub = onAuthChange((next) => {
@@ -448,6 +449,13 @@ export default function App() {
     setSavedBrandingSnapshot(null);
     (async () => {
       let org = await getMyOrganization();
+      if (org?.__unauthorized) {
+        // The token was rejected by the database: it belongs to a dead or
+        // revoked session. Clear it so the login screen shows.
+        await signOutLocal();
+        setSession(null);
+        return;
+      }
       if (org?.__error) {
         setBrandingError("Could not load your workspace: " + org.__error);
         return;

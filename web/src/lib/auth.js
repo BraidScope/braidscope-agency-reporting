@@ -91,6 +91,43 @@ export async function getSession() {
   }
 }
 
+// The cached session is only a token on disk. supabase-js hands it back
+// without asking the server, so a token signed by a stack that no longer
+// exists (or a revoked one) still looks signed in until the first data call
+// fails. Ask the auth server once at boot; on a definite rejection, clear
+// the cache so the app shows the login screen. Network trouble is not a
+// rejection: keep the session and let the callers' own errors show.
+export async function verifySession(session) {
+  if (!session || !isSupabaseConfigured()) return session;
+  try {
+    const { error } = await Promise.race([
+      supabase.auth.getUser(session.access_token),
+      new Promise((_, reject) => window.setTimeout(() => reject(new Error("verify timeout")), SESSION_TIMEOUT_MS)),
+    ]);
+    if (error && isAuthRejection(error)) {
+      await supabase.auth.signOut({ scope: "local" });
+      return null;
+    }
+    return session;
+  } catch {
+    return session;
+  }
+}
+
+// 401/403 from the auth server, or PostgREST's "JWT invalid/expired" code.
+export function isAuthRejection(error) {
+  if (!error) return false;
+  if (error.status === 401 || error.status === 403) return true;
+  if (error.code === "PGRST301" || error.code === "PGRST302") return true;
+  const msg = String(error.message || "").toLowerCase();
+  return msg.includes("invalid jwt") || msg.includes("jwt expired") || msg.includes("invalid claim") || msg.includes("session_not_found");
+}
+
+export async function signOutLocal() {
+  if (!isSupabaseConfigured()) return;
+  await supabase.auth.signOut({ scope: "local" });
+}
+
 export function onAuthChange(callback) {
   if (!isSupabaseConfigured()) return () => {};
   const { data } = supabase.auth.onAuthStateChange((_event, session) => callback(session));
@@ -105,7 +142,7 @@ export async function getMyOrganization() {
     .select("role, organization:organizations(id, name, slug, accent_color, logo_url, branding_config)")
     .limit(1)
     .maybeSingle();
-  if (error) return { __error: error.message };
+  if (error) return { __error: error.message, __unauthorized: isAuthRejection(error) };
   if (!data?.organization) return null;
   return { role: data.role, ...data.organization };
 }
