@@ -2192,6 +2192,23 @@ def build_final_input_text(
     )
 
 
+def no_tool_input_text(request: ChatRequest) -> str:
+    """Prompt for a message that needed no connector call (a greeting, a
+    general question, a follow-up). These providers cannot receive the live
+    MCP tools, so the model is told plainly that it has no numbers and which
+    sources it could be asked about, instead of the user getting a canned
+    notice for saying hello."""
+    sources = ", ".join(str(s) for s in (request.connected_sources or []) if s) or "none"
+    return (
+        "No connected-data tool was called for this message, so you have no live "
+        "numbers. Answer the user directly and briefly. If they ask about their "
+        "data, say which sources are connected and ask them to name the source "
+        "and the metric they want. Never invent figures.\n\n"
+        f"Connected sources: {sources}\n\n"
+        f"User message: {request.question}"
+    )
+
+
 def stream_chat_completion_provider(
     request: ChatRequest,
     instructions: str,
@@ -2199,15 +2216,22 @@ def stream_chat_completion_provider(
     ai_config: dict[str, str],
 ) -> Iterator[str]:
     if not direct_tool_result:
-        yield sse_event(
-            "message",
-            {
-                "delta": (
-                    "This AI provider is connected, but it cannot receive remote MCP tools directly here. "
-                    "Ask a specific connected-data question so Braidscope can call the MCP tool first, then summarize the result."
-                )
-            },
+        client = OpenAI(
+            api_key=ai_config["api_key"],
+            base_url=ai_config.get("base_url", "https://openrouter.ai/api/v1"),
+            timeout=float(os.getenv("OPENAI_CHAT_TIMEOUT_SECONDS", "90")),
         )
+        response = client.chat.completions.create(
+            model=ai_config["model"],
+            messages=[
+                {"role": "system", "content": instructions},
+                {"role": "user", "content": no_tool_input_text(request)},
+            ],
+            temperature=0,
+            max_tokens=int(os.getenv("OPENAI_CHAT_MAX_OUTPUT_TOKENS", "1200")),
+        )
+        text = response.choices[0].message.content or ""
+        yield sse_event("message", {"delta": text or "I could not produce an answer. Try again."})
         yield sse_event("done", {})
         return
 
@@ -2259,15 +2283,26 @@ def stream_anthropic_provider(
     ai_config: dict[str, str],
 ) -> Iterator[str]:
     if not direct_tool_result:
-        yield sse_event(
-            "message",
-            {
-                "delta": (
-                    "Claude BYOK is connected, but Claude cannot receive these remote MCP tools directly here. "
-                    "Ask a specific connected-data question so Braidscope can call the MCP tool first, then Claude can summarize it."
-                )
-            },
-        )
+        with httpx.Client(timeout=float(os.getenv("OPENAI_CHAT_TIMEOUT_SECONDS", "90"))) as client:
+            response = client.post(
+                f"{ai_config.get('base_url', 'https://api.anthropic.com').rstrip('/')}/v1/messages",
+                headers={
+                    "x-api-key": ai_config["api_key"],
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": ai_config["model"],
+                    "max_tokens": int(os.getenv("OPENAI_CHAT_MAX_OUTPUT_TOKENS", "1200")),
+                    "temperature": 0,
+                    "system": instructions,
+                    "messages": [{"role": "user", "content": no_tool_input_text(request)}],
+                },
+            )
+            response.raise_for_status()
+            blocks = response.json().get("content") or []
+        text = "".join(block.get("text", "") for block in blocks if block.get("type") == "text")
+        yield sse_event("message", {"delta": text or "I could not produce an answer. Try again."})
         yield sse_event("done", {})
         return
 

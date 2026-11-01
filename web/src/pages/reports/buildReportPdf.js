@@ -8,6 +8,7 @@
 // and the one you just downloaded are identical). `silent` skips the "report
 // generated" notification: only a report's first PDF is news.
 import { uploadReportPdf } from "./api";
+import { isChunkLoadError, NEW_VERSION_MESSAGE, reloadForNewVersion } from "../../lib/chunkReload";
 import { draftFromReport, reportFilename } from "./reportModel";
 
 export async function buildReportPdf({ clientId, report, clientName, branding, currency, silent = true, store = true }) {
@@ -31,7 +32,11 @@ export async function buildReportPdf({ clientId, report, clientName, branding, c
     });
   } catch (error) {
     console.error("[Reports] PDF render failed", error);
-    return { ok: false, error: "Couldn't create the PDF. Try again, and if it keeps failing check that your logo and text are valid." };
+    if (isChunkLoadError(error)) {
+      reloadForNewVersion();
+      return { ok: false, error: NEW_VERSION_MESSAGE };
+    }
+    return { ok: false, error: `Couldn't create the PDF (${error?.message || "unknown error"}). Try again, and if it keeps failing check that your logo and text are valid.` };
   }
   const filename = reportFilename(clientName, { name: draft.name, periodEnd: draft.periodEnd });
   if (!store) return { ok: true, blob: rendered.blob, pages: rendered.pages, filename, stored: null, storeError: "" };

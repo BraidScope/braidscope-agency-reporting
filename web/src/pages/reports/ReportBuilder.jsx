@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { canPerformAction } from "../../lib/permissions";
 import { useUnsavedChanges } from "../../lib/UnsavedChangesContext.jsx";
 import { changeReportStatus, downloadReportPdf, generateNarrative, getReport, saveBlob, updateReport, uploadReportPdf } from "./api";
+import { isChunkLoadError, NEW_VERSION_MESSAGE, reloadForNewVersion } from "../../lib/chunkReload";
 import { loadReportData } from "./loadReportData";
 import PeriodPicker from "./PeriodPicker";
 import ReportPreview from "./ReportPreview";
@@ -395,7 +396,13 @@ export default function ReportBuilder({
       }
     } catch (error) {
       console.error("[Reports] PDF export failed", error);
-      if (mountedRef.current) setExportError("Couldn't create the PDF. Try again, and if it keeps failing check that your logo and text are valid.");
+      if (!mountedRef.current) return;
+      if (isChunkLoadError(error)) {
+        setExportError(NEW_VERSION_MESSAGE);
+        reloadForNewVersion();
+      } else {
+        setExportError(`Couldn't create the PDF (${error?.message || "unknown error"}). Try again, and if it keeps failing check that your logo and text are valid.`);
+      }
     } finally {
       if (mountedRef.current) setExporting(false);
     }
@@ -412,7 +419,10 @@ export default function ReportBuilder({
   // ── Derived UI state ─────────────────────────────────────────────────────
   const stale = snapshotIsStale(draft.config, draft.snapshot);
   const totalSourcesCount = draft.config.sources.length;
-  const failedSources = Object.entries(draft.snapshot?.sources || {}).filter(([, entry]) => entry.ok === false).map(([id]) => id);
+  // Only sources the report uses: a snapshot can still carry entries for sources that were deselected since.
+  const failedSources = Object.entries(draft.snapshot?.sources || {})
+    .filter(([id, entry]) => entry.ok === false && draft.config.sources.includes(id))
+    .map(([id]) => id);
   const enabledAi = draft.config.sections.filter((section) => section.enabled && isAiSection(section.id));
   const includable = useMemo(() => {
     const ids = new Set([...connectedSources.map((source) => source.id), ...draft.config.sources]);
