@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, StreamingResponse
 
 from .auth import verify_bearer_token
+from .connectors.registry import connector_routers
 from .byok import disconnect_byok_provider, get_byok_connection_status, save_byok_key
 from .codex import (
     disconnect_codex,
@@ -192,6 +193,9 @@ app.include_router(google_ads_mcp_router)
 app.include_router(ga4_mcp_router)
 app.include_router(meta_ads_mcp_router)
 app.include_router(reports_router)
+# Connector packages under app/connectors/<id>/ add their own routes here.
+for _connector_router in connector_routers():
+    app.include_router(_connector_router)
 
 
 

@@ -81,17 +81,42 @@ class ChatConfigurationTests(unittest.IsolatedAsyncioTestCase):
             "GOOGLE_ADS_MCP_ACCESS_TOKEN": "google-token",
             "KLAVIYO_MCP_ACCESS_TOKEN": "klaviyo-token",
         }
-        with patch.dict(os.environ, environment, clear=True):
+        with patch.dict(os.environ, environment, clear=True), patch(
+            "app.chat_service.read_only_tool_names", new=AsyncMock(return_value=["get_campaigns"])
+        ):
             tools = await build_mcp_tools("client-1", ["klaviyo"])
 
         self.assertEqual([tool["server_label"] for tool in tools], ["klaviyo"])
         self.assertEqual(tools[0]["require_approval"], "never")
+        self.assertEqual(tools[0]["allowed_tools"], ["get_campaigns"])
+
+    async def test_remote_server_only_exposes_read_only_tools(self):
+        listed = [
+            {"name": "get_campaigns", "description": "List campaigns"},
+            {"name": "create_campaign", "description": "Create a campaign"},
+            {"name": "search_crm_objects", "description": "Search"},
+            {"name": "update_contact", "description": "Update"},
+        ]
+        with patch.dict(os.environ, {"HUBSPOT_MCP_ACCESS_TOKEN": "t"}, clear=True), patch(
+            "app.chat_service.list_mcp_tools", new=AsyncMock(return_value=(listed, {}))
+        ), patch.dict("app.chat_service._read_only_tools_cache", {}, clear=True):
+            tools = await build_mcp_tools("client-x", ["hubspot_crm"])
+        self.assertEqual(tools[0]["allowed_tools"], ["get_campaigns", "search_crm_objects"])
+
+    async def test_remote_server_is_left_out_when_tools_cannot_be_listed(self):
+        with patch.dict(os.environ, {"HUBSPOT_MCP_ACCESS_TOKEN": "t"}, clear=True), patch(
+            "app.chat_service.list_mcp_tools", new=AsyncMock(side_effect=RuntimeError("down"))
+        ), patch.dict("app.chat_service._read_only_tools_cache", {}, clear=True):
+            tools = await build_mcp_tools("client-y", ["hubspot_crm"])
+        self.assertEqual(tools, [])
 
     async def test_hubspot_tool_is_added_when_connected_and_token_exists(self):
         environment = {
             "HUBSPOT_MCP_ACCESS_TOKEN": "hubspot-token",
         }
-        with patch.dict(os.environ, environment, clear=True):
+        with patch.dict(os.environ, environment, clear=True), patch(
+            "app.chat_service.read_only_tool_names", new=AsyncMock(return_value=["search_crm_objects"])
+        ):
             tools = await build_mcp_tools("client-1", ["hubspot_crm"])
 
         self.assertEqual([tool["server_label"] for tool in tools], ["hubspot_crm"])

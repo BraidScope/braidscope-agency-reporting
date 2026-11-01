@@ -64,6 +64,11 @@ security boundary.
 
 ## Hard rules
 
+- Connectors are read-only. No connector writes to a platform. Every non-GET outbound call is listed
+  in `py/app/connectors/policy.py` with its purpose, and `py/tests/test_connector_contract.py` fails
+  on anything else. New connectors go in `py/app/connectors/<id>/` and use `connector_client`.
+  Ask AI only calls read-only MCP tools. See `docs/connectors.md` and `docs/security-model.md`.
+
 1. **No secrets in code.** Use `.env` (gitignored) on the server and GitHub environment secrets.
    Never commit `.env`. Never put a real token, key, password, host, or server path in a file, issue,
    PR, or commit message. Use placeholders.

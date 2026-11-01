@@ -72,8 +72,20 @@ White-label and larger plans: contact us through the site.
 Read [CONTRIBUTING.md](CONTRIBUTING.md). Short version: run the checks, sign your commits (`git commit -s`),
 one topic per PR, no real keys anywhere. Connectors for new platforms are welcome.
 
+## Security
+
+Connectors only read. No connector writes to a platform, and the AI assistant can only call read-only
+tools. That is enforced by a policy file and a CI test, not by convention: see
+[docs/security-model.md](docs/security-model.md). To add a platform, read
+[docs/connectors.md](docs/connectors.md); a scaffold command gets you a working package in a minute.
+
 ## Licence
 
-AGPL-3.0-only. See [LICENSE](LICENSE) and [NOTICE](NOTICE). Security problems: see [SECURITY.md](SECURITY.md).
+AGPL-3.0-only. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+In plain words: you can run it, change it and share it. If you offer a modified Braidscope to others
+over a network, you must publish your changes under the same licence. If that does not fit your
+business, a commercial licence is available: hello@braidscope.com. The name and logo are trademarks,
+see [TRADEMARK.md](TRADEMARK.md). Security problems: see [SECURITY.md](SECURITY.md).
 
 Built by [AI Data House](https://braidscope.com).

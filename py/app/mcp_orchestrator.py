@@ -285,6 +285,13 @@ def tool_action_words(name: str) -> set[str]:
     return {part for part in normalized.split("_") if part}
 
 
+def tool_name_is_read_only(name: str) -> bool:
+    """Cheap, no-network check on a tool name alone. The last line of
+    defence before a remote MCP tool is executed: a name with a write-like
+    word is refused whatever chose it (the model, a heuristic, a caller)."""
+    return not (tool_action_words(name) & set(DESTRUCTIVE_WORDS))
+
+
 def schema_has_write_inputs(tool: dict[str, Any]) -> bool:
     schema = get_tool_schema(tool)
     schema_text = json.dumps(schema, default=str).lower()
@@ -1556,6 +1563,8 @@ async def execute_mcp_tool(
     tool_name: str,
     arguments: dict[str, Any],
 ) -> dict[str, Any]:
+    if not tool_name_is_read_only(tool_name):
+        return {"error": f"{tool_name} is not a read-only tool. Braidscope only reads data and never changes it."}
     token = await platform.get_token(client_id)
     if not token:
         return {"error": f"{platform.display_name} MCP token is missing"}

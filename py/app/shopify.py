@@ -11,6 +11,8 @@ from urllib.parse import urlencode
 
 import httpx
 from cryptography.fernet import Fernet, InvalidToken
+
+from .connectors.policy import assert_read_only_graphql
 from fastapi import HTTPException, Request, status
 
 from .schemas import AuthUser, MetricCard, ShopifyOAuthStartResponse
@@ -514,6 +516,7 @@ async def fetch_shopify_orders(
     orders: list[dict[str, Any]] = []
     cursor: str | None = None
 
+    assert_read_only_graphql(SHOPIFY_ORDERS_QUERY)
     async with httpx.AsyncClient(timeout=30) as client:
         for _page in range(max_pages):
             response = await client.post(

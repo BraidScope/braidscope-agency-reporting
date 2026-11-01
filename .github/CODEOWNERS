@@ -1,8 +1,32 @@
-*                         @BraidScope/core-maintainers
-/supabase/migrations/     @BraidScope/core-maintainers
-/deploy/                  @Awais-Rafeeq
-/.github/                 @Awais-Rafeeq
-/LICENSE                  @Awais-Rafeeq
-/NOTICE                   @Awais-Rafeeq
-/SECURITY.md              @Awais-Rafeeq
-/AGENTS.md                @Awais-Rafeeq
+# Who must review what. Connector work can be reviewed by the connector team;
+# anything that touches auth, data access, secrets, deploy or CI needs the owner.
+#
+# Replace the connector-team handle once the GitHub team exists:
+#   /py/app/connectors/   @BraidScope/connectors
+# Until then every path falls back to the owner.
+
+*                                   @Awais-Rafeeq
+
+# Core: security-sensitive. Owner review required.
+/py/app/auth.py                     @Awais-Rafeeq
+/py/app/client_access.py            @Awais-Rafeeq
+/py/app/client_context.py           @Awais-Rafeeq
+/py/app/supabase_admin.py           @Awais-Rafeeq
+/py/app/account_settings.py         @Awais-Rafeeq
+/py/app/admin_workspace.py          @Awais-Rafeeq
+/py/app/rate_limit.py               @Awais-Rafeeq
+/py/app/startup_checks.py           @Awais-Rafeeq
+/py/app/main.py                     @Awais-Rafeeq
+/py/app/connectors/policy.py        @Awais-Rafeeq
+/py/app/connectors/http.py          @Awais-Rafeeq
+/py/tests/test_connector_contract.py @Awais-Rafeeq
+/supabase/migrations/               @Awais-Rafeeq
+/deploy/                            @Awais-Rafeeq
+/.github/                           @Awais-Rafeeq
+/web/nginx.conf                     @Awais-Rafeeq
+/web/src/lib/auth.js                @Awais-Rafeeq
+/web/src/lib/supabase.js            @Awais-Rafeeq
+/LICENSE                            @Awais-Rafeeq
+/NOTICE                             @Awais-Rafeeq
+/SECURITY.md                        @Awais-Rafeeq
+/AGENTS.md                          @Awais-Rafeeq

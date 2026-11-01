@@ -31,6 +31,10 @@ Supabase, OpenRouter), denial of service, and findings that need a compromised d
 - The backend refuses to start with missing or malformed secrets.
 - Row level security protects every table that the browser can reach. Backend-only tables have no
   browser policies at all.
+- Connectors are read-only: no connector writes to a platform. The policy in
+  `py/app/connectors/policy.py` lists every non-GET call that is a read, and
+  `py/tests/test_connector_contract.py` fails CI on anything else. Ask AI can only
+  call read-only tools. Details in `docs/security-model.md`.
 - Connector tokens are encrypted at rest. Report PDFs are private and served only after an
   authorization check.
 - Self-host installs get random secrets per install and HTTPS by default on a real domain.

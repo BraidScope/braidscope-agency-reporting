@@ -18,8 +18,35 @@ from .ga4 import get_ga4_access_token, ga4_mcp_url
 from .meta_ads import get_meta_ads_access_token, meta_ads_mcp_url
 from .hubspot import get_hubspot_access_token, hubspot_mcp_url
 from .klaviyo import get_klaviyo_access_token
+from .mcp_orchestrator import PLATFORMS, list_mcp_tools, tool_is_read_only
 from .openrouter import get_openrouter_chat_config
 from .schemas import ChatRequest
+
+
+# Third-party MCP servers (HubSpot, Klaviyo) expose write tools too. The
+# model only ever sees the read-only subset, listed live and cached briefly.
+_READ_ONLY_TOOLS_TTL_SECONDS = 600
+_read_only_tools_cache: dict[tuple[str, str], tuple[float, list[str]]] = {}
+
+
+async def read_only_tool_names(label: str, client_id: str) -> list[str]:
+    """Names of a remote MCP server's tools that pass tool_is_read_only.
+    Empty on any failure, so the server is left out rather than opened up."""
+    platform = PLATFORMS.get(label)
+    if platform is None:
+        return []
+    key = (label, client_id)
+    cached = _read_only_tools_cache.get(key)
+    if cached and cached[0] > time.monotonic():
+        return list(cached[1])
+    try:
+        tools, _ = await list_mcp_tools(platform, client_id)
+    except Exception as exc:  # noqa: BLE001 - any failure means "no tools", never "all tools"
+        debug_log("read-only tool listing failed label=%s error=%s", label, exc)
+        return []
+    names = [str(t["name"]) for t in tools if t.get("name") and tool_is_read_only(t)]
+    _read_only_tools_cache[key] = (time.monotonic() + _READ_ONLY_TOOLS_TTL_SECONDS, names)
+    return names
 
 
 async def build_mcp_tools(client_id: str, connected_sources: list[str]) -> list[dict[str, Any]]:
@@ -75,29 +102,35 @@ async def build_mcp_tools(client_id: str, connected_sources: list[str]) -> list[
     klaviyo_url = os.getenv("KLAVIYO_MCP_URL", KLAVIYO_MCP_URL)
     klaviyo_token = await get_klaviyo_access_token(client_id)
     if "klaviyo" in connected and klaviyo_token:
-        tools.append(
-            {
-                "type": "mcp",
-                "server_label": "klaviyo",
-                "server_description": "Official Klaviyo hosted MCP server for read-only campaign, flow, and metric analysis.",
-                "server_url": klaviyo_url,
-                "authorization": klaviyo_token,
-                "require_approval": "never",
-            }
-        )
+        allowed = await read_only_tool_names("klaviyo", client_id)
+        if allowed:
+            tools.append(
+                {
+                    "type": "mcp",
+                    "server_label": "klaviyo",
+                    "server_description": "Official Klaviyo hosted MCP server for read-only campaign, flow, and metric analysis.",
+                    "server_url": klaviyo_url,
+                    "authorization": klaviyo_token,
+                    "allowed_tools": allowed,
+                    "require_approval": "never",
+                }
+            )
 
     hubspot_token = await get_hubspot_access_token(client_id)
     if "hubspot_crm" in connected and hubspot_token:
-        tools.append(
-            {
-                "type": "mcp",
-                "server_label": "hubspot_crm",
-                "server_description": "Official HubSpot remote MCP server for read-only CRM analysis.",
-                "server_url": hubspot_mcp_url(),
-                "authorization": hubspot_token,
-                "require_approval": "never",
-            }
-        )
+        allowed = await read_only_tool_names("hubspot_crm", client_id)
+        if allowed:
+            tools.append(
+                {
+                    "type": "mcp",
+                    "server_label": "hubspot_crm",
+                    "server_description": "Official HubSpot remote MCP server for read-only CRM analysis.",
+                    "server_url": hubspot_mcp_url(),
+                    "authorization": hubspot_token,
+                    "allowed_tools": allowed,
+                    "require_approval": "never",
+                }
+            )
 
     return tools
 
