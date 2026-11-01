@@ -248,8 +248,10 @@ services:
       # Read at container start, so one prebuilt image works for every domain.
       SUPABASE_URL_PUBLIC: ${PUBLIC_URL}
       SUPABASE_ANON_KEY: ${ANON_KEY}
+      # Hides cloud-only UI such as the trial card.
+      SELF_HOST: "true"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/robots.txt"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/robots.txt"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -263,7 +265,6 @@ services:
     environment:
       DOMAIN: ${DOMAIN}
       CADDY_SITE: ${CADDY_SITE:-http://localhost}
-      ACME_EMAIL: ${ACME_EMAIL:-}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddydata:/data

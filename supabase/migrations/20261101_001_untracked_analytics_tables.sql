@@ -1,4 +1,4 @@
--- Baseline for six tables that exist in the live Supabase project and are
+-- Baseline for seven tables that exist in the live Supabase project and are
 -- used by py/app (dashboards write to them), but were created by hand and
 -- never committed. Copied from the live schema on 1 Nov 2026 so a fresh
 -- self-hosted install has them. Idempotent on the live project.
@@ -89,3 +89,13 @@ create table if not exists public.analytics_hubspot_cache (
 );
 create index if not exists idx_hubspot_cache_lookup on public.analytics_hubspot_cache (org_id, days, synced_at desc);
 alter table public.analytics_hubspot_cache enable row level security;
+
+-- Chart requests from the dashboard builder (backend only, like the tables above).
+create table if not exists public.chart_requests (
+  id         uuid primary key default gen_random_uuid(),
+  org_id     uuid not null references public.organizations(id) on delete cascade,
+  tab        text not null,
+  label      text not null,
+  created_at timestamptz default now()
+);
+alter table public.chart_requests enable row level security;

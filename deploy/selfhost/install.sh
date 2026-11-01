@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Braidscope one-command install.
 #
-#   curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope-agency-reporting/main/deploy/selfhost/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope/main/deploy/selfhost/install.sh | bash
 #
 # Optional environment variables before running:
 #   BRAIDSCOPE_DOMAIN=app.example.com   (default: localhost, plain http)
@@ -15,7 +15,7 @@
 set -euo pipefail
 
 REPO_OWNER="${BRAIDSCOPE_REPO_OWNER:-BraidScope}"
-REPO_NAME="${BRAIDSCOPE_REPO_NAME:-braidscope-agency-reporting}"
+REPO_NAME="${BRAIDSCOPE_REPO_NAME:-braidscope}"
 REF="${BRAIDSCOPE_REF:-main}"
 DOMAIN="${BRAIDSCOPE_DOMAIN:-localhost}"
 EMAIL="${BRAIDSCOPE_EMAIL:-}"
@@ -56,6 +56,17 @@ else
 fi
 cd "$DIR/deploy/selfhost"
 
+# Commit shown in the app's build stamp. A tarball carries no git metadata, so
+# ask GitHub for the commit behind $REF; fall back to the ref name.
+if git -C "$DIR" rev-parse --short HEAD >/dev/null 2>&1; then
+  GIT_COMMIT="$(git -C "$DIR" rev-parse --short HEAD)"
+else
+  GIT_COMMIT="$(curl -fsSL -H 'Accept: application/vnd.github+json' \
+    "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/commits/$REF" 2>/dev/null \
+    | sed -n 's/^  "sha": "\([0-9a-f]\{7\}\).*/\1/p' | head -1)"
+  GIT_COMMIT="${GIT_COMMIT:-$REF}"
+fi
+
 # 2. Secrets. Minted inside a throwaway Python container so the host needs
 #    nothing but Docker. ANON_KEY and SERVICE_ROLE_KEY are JWTs signed with
 #    JWT_SECRET, exactly like Supabase does it.
@@ -89,12 +100,11 @@ PY
     echo "DOMAIN=$DOMAIN"
     echo "PUBLIC_URL=$PUBLIC_URL"
     echo "CADDY_SITE=$CADDY_SITE"
-    echo "ACME_EMAIL=$EMAIL"
     echo "$SECRETS" | grep -v '^OWNER_PASSWORD='
     echo "JWT_EXPIRY=3600"
     echo "DISABLE_SIGNUP=false"
     echo "ENABLE_EMAIL_AUTOCONFIRM=true"
-    echo "GIT_COMMIT=$REF"
+    echo "GIT_COMMIT=$GIT_COMMIT"
   } > .env
   chmod 600 .env
   echo "OWNER_PASSWORD=$OWNER_PASSWORD" > .first-owner

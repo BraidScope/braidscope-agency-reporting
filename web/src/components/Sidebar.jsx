@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: AGPL-3.0-only
 import { NAV_ITEMS } from "../lib/data";
 import { canAccessView } from "../lib/permissions";
 
@@ -6,6 +5,10 @@ import { canAccessView } from "../lib/permissions";
 // set by the deploy workflow). Shown in the sidebar foot so anyone can see
 // which commit is live without server access. Local dev shows "dev".
 const BUILD_COMMIT = import.meta.env.VITE_GIT_COMMIT || "dev";
+// Self-hosted installs have no plan or trial (set by /config.js at container start).
+const SELF_HOST = Boolean(
+  typeof window !== "undefined" && window.__BRAIDSCOPE_CONFIG__ && window.__BRAIDSCOPE_CONFIG__.selfHost
+);
 
 export default function Sidebar({ view, onGoTo, collapsed, onToggle, client, org }) {
   // Demo mode (org is null) and the brief pre-load window before the client
@@ -47,11 +50,13 @@ export default function Sidebar({ view, onGoTo, collapsed, onToggle, client, org
 
       <div className="side-foot">
         <div className="side-divider" />
-        <div className="side-tip">
-          <div className="side-tip-head"><i className="ti ti-bolt" /> Trial</div>
-          <div className="side-tip-body">21 days left on your trial.</div>
-          <button className="side-tip-btn">Upgrade</button>
-        </div>
+        {!SELF_HOST && (
+          <div className="side-tip">
+            <div className="side-tip-head"><i className="ti ti-bolt" /> Trial</div>
+            <div className="side-tip-body">21 days left on your trial.</div>
+            <button className="side-tip-btn">Upgrade</button>
+          </div>
+        )}
         <div className="side-build" title="Build commit">build {BUILD_COMMIT}</div>
       </div>
     </aside>

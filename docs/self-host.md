@@ -6,20 +6,33 @@ Tested target: 2 vCPU, 4 GB RAM minimum (8 GB comfortable), 20 GB disk, Ubuntu 2
 ## Install (one command)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope-agency-reporting/main/deploy/selfhost/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope/main/deploy/selfhost/install.sh | bash
 ```
 
 With a real domain (HTTPS turns on by itself; point the domain's A record at the server first):
 
 ```bash
 BRAIDSCOPE_DOMAIN=app.example.com BRAIDSCOPE_EMAIL=you@example.com \
-  bash -c "$(curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope-agency-reporting/main/deploy/selfhost/install.sh)"
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope/main/deploy/selfhost/install.sh)"
 ```
 
 The script checks Docker, downloads the code into `./braidscope`, writes `deploy/selfhost/.env` with
 random secrets, starts everything, creates the first owner account and prints the login.
 
-If you would rather read before you run, download the script first and open it. It is 120 lines.
+If you would rather read before you run, download the script first and open it. It is about 150 lines.
+
+Mac with Colima: install the Compose plugin too (`brew install docker-compose`, then link it into
+`~/.docker/cli-plugins`). Docker Desktop and Linux packages already include it.
+
+Check the login the installer printed: sign in at the URL, or from a shell
+
+```bash
+curl -s -X POST "$PUBLIC_URL/auth/v1/token?grant_type=password" -H "apikey: $ANON_KEY" \
+  -H "Content-Type: application/json" -d '{"email":"<owner email>","password":"<printed password>"}'
+```
+
+returns an access token, and `GET $PUBLIC_URL/rest/v1/organizations` with that token as a Bearer
+header answers 200.
 
 ## What runs
 
@@ -95,7 +108,7 @@ docker compose restart py storage
 ## HTTPS
 
 Caddy gets a certificate from Let's Encrypt when `DOMAIN` is a real domain that resolves to the
-server and ports 80 and 443 are open. No setup. Behind another proxy, forward both ports to Caddy or
+server and ports 80 and 443 are open. No setup and no account email needed. Behind another proxy, forward both ports to Caddy or
 terminate TLS there and set `PUBLIC_URL` to the https address.
 
 ## Security notes

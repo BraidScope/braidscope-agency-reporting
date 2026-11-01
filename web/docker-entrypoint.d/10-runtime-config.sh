@@ -8,6 +8,7 @@ escape() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
 cat > /usr/share/nginx/html/config.js <<EOF
 window.__BRAIDSCOPE_CONFIG__ = {
   supabaseUrl: "$(escape "${SUPABASE_URL_PUBLIC:-}")",
-  supabaseAnonKey: "$(escape "${SUPABASE_ANON_KEY:-}")"
+  supabaseAnonKey: "$(escape "${SUPABASE_ANON_KEY:-}")",
+  selfHost: $([ "${SELF_HOST:-}" = "true" ] && echo true || echo false)
 };
 EOF

@@ -7,9 +7,8 @@
 # the same origin as the app, which is what the browser and the backend expect.
 # No Kong gateway: row level security and JWT checks live in the services.
 
-{
-	email {$ACME_EMAIL}
-}
+# No global "email" option: an empty value is a parse error on a local install,
+# and Let's Encrypt issues certificates without one.
 
 (supabase) {
 	handle_path /auth/v1/* {
