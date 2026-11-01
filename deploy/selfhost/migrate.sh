@@ -12,9 +12,17 @@ create table if not exists public.braidscope_migrations (
 SQL
 
 applied=0
-# sort -V orders by the leading timestamp, so 20260604_000_init runs before
-# 20260604000100_connector_credentials (plain sort puts digits before "_").
-for file in $(ls /migrations/*.sql | LC_ALL=C sort -V); do
+# Order by the timestamp before the first "_", compared as text, like the
+# Supabase CLI. Plain sort would run 20260604000100_connector_credentials
+# before 20260604_000_init ("0" < "_"); sort -V would run it last (14 digits
+# compare as a bigger number than 8).
+ordered() {
+  for f in /migrations/*.sql; do
+    n="$(basename "$f")"
+    printf '%s %s\n' "${n%%_*}" "$f"
+  done | LC_ALL=C sort -k1,1 -k2,2 | cut -d' ' -f2-
+}
+for file in $(ordered); do
   name="$(basename "$file")"
   already="$(psql -tAq -c "select 1 from public.braidscope_migrations where name = '$name'")"
   if [ "$already" = "1" ]; then
