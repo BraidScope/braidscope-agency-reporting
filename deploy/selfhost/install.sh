@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Braidscope one-command install.
 #
-#   curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope/main/deploy/selfhost/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope-agency-reporting/main/deploy/selfhost/install.sh | bash
 #
 # Optional environment variables before running:
 #   BRAIDSCOPE_DOMAIN=app.example.com   (default: localhost, plain http)
@@ -15,7 +15,7 @@
 set -euo pipefail
 
 REPO_OWNER="${BRAIDSCOPE_REPO_OWNER:-BraidScope}"
-REPO_NAME="${BRAIDSCOPE_REPO_NAME:-braidscope}"
+REPO_NAME="${BRAIDSCOPE_REPO_NAME:-braidscope-agency-reporting}"
 REF="${BRAIDSCOPE_REF:-main}"
 DOMAIN="${BRAIDSCOPE_DOMAIN:-localhost}"
 EMAIL="${BRAIDSCOPE_EMAIL:-}"

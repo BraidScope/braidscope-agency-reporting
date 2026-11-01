@@ -6,14 +6,14 @@ Tested target: 2 vCPU, 4 GB RAM minimum (8 GB comfortable), 20 GB disk, Ubuntu 2
 ## Install (one command)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope/main/deploy/selfhost/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope-agency-reporting/main/deploy/selfhost/install.sh | bash
 ```
 
 With a real domain (HTTPS turns on by itself; point the domain's A record at the server first):
 
 ```bash
 BRAIDSCOPE_DOMAIN=app.example.com BRAIDSCOPE_EMAIL=you@example.com \
-  bash -c "$(curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope/main/deploy/selfhost/install.sh)"
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/BraidScope/braidscope-agency-reporting/main/deploy/selfhost/install.sh)"
 ```
 
 The script checks Docker, downloads the code into `./braidscope`, writes `deploy/selfhost/.env` with
