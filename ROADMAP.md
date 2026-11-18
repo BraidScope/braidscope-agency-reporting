@@ -4,7 +4,7 @@ What is next, in order. Dates are intentions, not promises. Open an issue to arg
 
 ## Now (November 2026)
 
-- Public release of this repository.
+- Public release of this repository (done, 31 Oct).
 - Connector contract: every connector read-only, checked in CI (done).
 - One-command self-host, tested end to end on every change (done).
 - Shopify dashboard tab.

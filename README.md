@@ -8,7 +8,7 @@
 **Open-source client reporting for marketing agencies.** Every client's ad and analytics numbers in one
 place, with your agency's branding. Self-host it in one command, or use our cloud.
 
-> **Status: preparing for public release.**
+> **Status: live.** Self-host is free with all six connectors. Braidscope Cloud is open for sign-up at [braidscope.cloud](https://braidscope.cloud).
 
 ![Braidscope](web/public/og-image.png)
 
@@ -55,7 +55,7 @@ Everything else, including upgrade, backup and moving from the cloud, is in [doc
 |---|---|
 | Every connector: Google Ads, Meta Ads, GA4, HubSpot, Klaviyo, Shopify | The same, hosted and kept working when platforms change their APIs |
 | Dashboards, reports, PDF download, Ask AI | Backups, upgrades and monitoring done for you |
-| Team and roles, client workspaces | White-label domains, priority support |
+| Team and roles, client workspaces | White-label domains (coming soon), priority support |
 | You run it on your server | We run it: [braidscope.com](https://braidscope.com) |
 
 White-label and larger plans: contact us through the site.
